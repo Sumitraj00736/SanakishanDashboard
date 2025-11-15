@@ -4,18 +4,30 @@ import { AppContext } from "../context/AppContext.jsx";
 import Loader from "../components/Loader.jsx";
 
 export default function Products() {
-  const { productsLoading, fetchProducts, deleteProduct, createProduct, updateProduct } = useContext(AppContext);
+  const {
+    productsLoading,
+    fetchProducts,
+    deleteProduct,
+    createProduct,
+    updateProduct,
+  } = useContext(AppContext);
 
   const [listProducts, setListProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
   const [newProduct, setNewProduct] = useState({
+    productId: "",
     name: "",
     totalUnits: 0,
     reservedUnits: 0,
     basePrice: 0,
     memberPrice: 0,
   });
+
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
 
@@ -24,17 +36,31 @@ export default function Products() {
     try {
       setLoading(true);
       const data = await fetchProducts();
-      setListProducts(Array.isArray(data) ? data : data.products || []);
+      const products = Array.isArray(data) ? data : data.products || [];
+      setListProducts(products);
+      setFilteredProducts(products);
       setLoading(false);
     } catch (err) {
       setError(err.message || "Failed to load products");
       setLoading(false);
     }
   };
+  console.log("Products loaded:", listProducts);
 
   useEffect(() => {
     load();
   }, [fetchProducts]);
+
+  // Search filter
+  useEffect(() => {
+    const term = searchTerm.toLowerCase();
+    const filtered = listProducts.filter(
+      (p) =>
+        p.name.toLowerCase().includes(term) ||
+        p.productId?.toLowerCase().includes(term)
+    );
+    setFilteredProducts(filtered);
+  }, [searchTerm, listProducts]);
 
   // Delete product
   const handleDelete = async (id) => {
@@ -51,6 +77,7 @@ export default function Products() {
   const handleEdit = (product) => {
     setEditingId(product._id);
     setEditValues({
+      productId: product._id || "",
       name: product.name,
       totalUnits: product.totalUnits,
       reservedUnits: product.reservedUnits || 0,
@@ -75,7 +102,14 @@ export default function Products() {
   const handleCreate = async () => {
     try {
       await createProduct(newProduct);
-      setNewProduct({ name: "", totalUnits: 0, reservedUnits: 0, basePrice: 0, memberPrice: 0 });
+      setNewProduct({
+        productId: "",
+        name: "",
+        totalUnits: 0,
+        reservedUnits: 0,
+        basePrice: 0,
+        memberPrice: 0,
+      });
       load();
     } catch (err) {
       setError(err.message || "Failed to create product");
@@ -90,48 +124,82 @@ export default function Products() {
         <h1 className="text-3xl font-bold text-gray-800">Products</h1>
       </div>
 
-      {error && <div className="text-red-600 bg-red-100 p-4 rounded-lg mb-6">{error}</div>}
+      {error && (
+        <div className="text-red-600 bg-red-100 p-4 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
+
+      {/* SEARCH BAR */}
+      <div className="mb-4 flex justify-end">
+        <input
+          type="text"
+          placeholder="Search by Product Name or ID..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-3 w-72 rounded-lg shadow-sm"
+        />
+      </div>
 
       {/* CREATE NEW PRODUCT */}
-      <div className="mb-6 p-4 bg-white shadow rounded-lg flex space-x-4">
+      <div className="mb-6 p-4 bg-white shadow rounded-lg grid grid-cols-6 gap-3">
+        <input
+          type="text"
+          placeholder="Product ID"
+          value={newProduct._id}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, productId: e.target.value })
+          }
+          className="border p-2 rounded"
+        />
         <input
           type="text"
           placeholder="Name"
           value={newProduct.name}
-          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, name: e.target.value })
+          }
           className="border p-2 rounded"
         />
         <input
           type="number"
           placeholder="Total Units"
           value={newProduct.totalUnits}
-          onChange={(e) => setNewProduct({ ...newProduct, totalUnits: +e.target.value })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, totalUnits: +e.target.value })
+          }
           className="border p-2 rounded"
         />
         <input
           type="number"
           placeholder="Reserved Units"
           value={newProduct.reservedUnits}
-          onChange={(e) => setNewProduct({ ...newProduct, reservedUnits: +e.target.value })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, reservedUnits: +e.target.value })
+          }
           className="border p-2 rounded"
         />
         <input
           type="number"
           placeholder="Base Price"
           value={newProduct.basePrice}
-          onChange={(e) => setNewProduct({ ...newProduct, basePrice: +e.target.value })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, basePrice: +e.target.value })
+          }
           className="border p-2 rounded"
         />
         <input
           type="number"
           placeholder="Member Price"
           value={newProduct.memberPrice}
-          onChange={(e) => setNewProduct({ ...newProduct, memberPrice: +e.target.value })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, memberPrice: +e.target.value })
+          }
           className="border p-2 rounded"
         />
         <button
           onClick={handleCreate}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 col-span-6"
         >
           Add Product
         </button>
@@ -142,6 +210,7 @@ export default function Products() {
         <table className="w-full">
           <thead className="bg-gray-50 text-left text-gray-600">
             <tr>
+              <th className="p-4 font-semibold">Product ID</th>
               <th className="p-4 font-semibold">Name</th>
               <th className="p-4 font-semibold">Total Units</th>
               <th className="p-4 font-semibold">Reserved Units</th>
@@ -150,52 +219,100 @@ export default function Products() {
               <th className="p-4 font-semibold">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {listProducts.length > 0 ? (
-              listProducts.map((p) => (
-                <tr key={p._id} className="border-t hover:bg-gray-50 transition">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((p) => (
+                <tr
+                  key={p._id}
+                  className="border-t hover:bg-gray-50 transition"
+                >
                   {editingId === p._id ? (
                     <>
                       <td className="p-4">
                         <input
                           type="text"
-                          value={editValues.name}
-                          onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                          value={editValues.productId}
+                          onChange={(e) =>
+                            setEditValues({
+                              ...editValues,
+                              productId: e.target.value,
+                            })
+                          }
                           className="border p-2 rounded w-full"
                         />
                       </td>
+
+                      <td className="p-4">
+                        <input
+                          type="text"
+                          value={editValues.name}
+                          onChange={(e) =>
+                            setEditValues({
+                              ...editValues,
+                              name: e.target.value,
+                            })
+                          }
+                          className="border p-2 rounded w-full"
+                        />
+                      </td>
+
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.totalUnits}
-                          onChange={(e) => setEditValues({ ...editValues, totalUnits: +e.target.value })}
+                          onChange={(e) =>
+                            setEditValues({
+                              ...editValues,
+                              totalUnits: +e.target.value,
+                            })
+                          }
                           className="border p-2 rounded w-full"
                         />
                       </td>
+
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.reservedUnits}
-                          onChange={(e) => setEditValues({ ...editValues, reservedUnits: +e.target.value })}
+                          onChange={(e) =>
+                            setEditValues({
+                              ...editValues,
+                              reservedUnits: +e.target.value,
+                            })
+                          }
                           className="border p-2 rounded w-full"
                         />
                       </td>
+
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.basePrice}
-                          onChange={(e) => setEditValues({ ...editValues, basePrice: +e.target.value })}
+                          onChange={(e) =>
+                            setEditValues({
+                              ...editValues,
+                              basePrice: +e.target.value,
+                            })
+                          }
                           className="border p-2 rounded w-full"
                         />
                       </td>
+
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.memberPrice}
-                          onChange={(e) => setEditValues({ ...editValues, memberPrice: +e.target.value })}
+                          onChange={(e) =>
+                            setEditValues({
+                              ...editValues,
+                              memberPrice: +e.target.value,
+                            })
+                          }
                           className="border p-2 rounded w-full"
                         />
                       </td>
+
                       <td className="p-4 space-x-2">
                         <button
                           onClick={() => handleUpdate(p._id)}
@@ -213,11 +330,18 @@ export default function Products() {
                     </>
                   ) : (
                     <>
+                      <td className="p-4">{p._id || "-"}</td>
                       <td className="p-4">{p.name}</td>
                       <td className="p-4">{p.totalUnits}</td>
                       <td className="p-4">{p.reservedUnits}</td>
-                      <td className="p-4">${p.basePrice.toLocaleString()}</td>
-                      <td className="p-4">{p.memberPrice ? `$${p.memberPrice.toLocaleString()}` : "-"}</td>
+                      <td className="p-4">
+                        NPR {p.basePrice.toLocaleString()}
+                      </td>
+                      <td className="p-4">
+                        {p.memberPrice
+                          ? `NPR ${p.memberPrice.toLocaleString()}`
+                          : "-"}
+                      </td>
                       <td className="p-4 space-x-2">
                         <button
                           onClick={() => handleEdit(p)}
@@ -238,7 +362,7 @@ export default function Products() {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-500">
+                <td colSpan="7" className="text-center p-4 text-gray-500">
                   No products found.
                 </td>
               </tr>
