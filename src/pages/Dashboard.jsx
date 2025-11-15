@@ -4,13 +4,8 @@ import StatCard from "../components/StatCard.jsx";
 import { AppContext } from "../context/AppContext.jsx";
 import Loader from "../components/Loader.jsx";
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Package, BookOpen, Users } from "lucide-react"; // Icons
 
 export default function Dashboard() {
   const { fetchStats } = useContext(AppContext);
@@ -23,7 +18,11 @@ export default function Dashboard() {
     })();
   }, []);
 
-  if (!stats) return <AdminLayout><Loader/></AdminLayout>;
+  if (!stats) return (
+    <AdminLayout>
+      <Loader />
+    </AdminLayout>
+  );
 
   const pieData = [
     { name: "Products", value: stats.products },
@@ -39,9 +38,24 @@ export default function Dashboard() {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard title="Products" value={stats.products} bgColor="bg-green-800" />
-        <StatCard title="Bookings" value={stats.bookings} bgColor="bg-blue-800" />
-        <StatCard title="Members" value={stats.members} bgColor="bg-red-800" />
+        <StatCard 
+          title="Products" 
+          value={stats.products} 
+          bgColor="bg-green-800" 
+          icon={<Package />} 
+        />
+        <StatCard 
+          title="Bookings" 
+          value={stats.bookings} 
+          bgColor="bg-blue-800" 
+          icon={<BookOpen />} 
+        />
+        <StatCard 
+          title="Members" 
+          value={stats.members} 
+          bgColor="bg-red-800" 
+          icon={<Users />} 
+        />
       </div>
 
       {/* Pie Chart */}
@@ -49,7 +63,7 @@ export default function Dashboard() {
         <h2 className="text-xl font-semibold mb-4">Statistics Chart</h2>
 
         <div className="w-full flex items-center justify-center">
-          {/* Responsive Height for Different Devices */}
+          {/* Responsive Height */}
           <div className="w-full h-[280px] md:h-[350px] lg:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

@@ -13,17 +13,18 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 fixed top-0 left-0 h-full bg-gray-900 text-white z-40">
+    <aside className="w-64 fixed top-0 left-0 h-full bg-green-800 text-white z-40">
       {" "}
-      <div className="p-6 text-xl font-bold">ShanaKishan</div>
+      <div className="p-6 text-xl font-bold">SanaKishan</div>
+      <div className="w-full h-[0.3%] bg-gray-900 "></div>
       <nav className="mt-6">
         {links.map((l) => (
           <NavLink
             key={l.to}
             to={l.to}
             className={({ isActive }) =>
-              `block px-6 py-3 hover:bg-gray-700 ${
-                isActive ? "bg-gray-700" : ""
+              `block px-6 py-3 hover:bg-red-900 bg-opacity-10 ${
+                isActive ? "bg-red-900" : ""
               }`
             }
           >

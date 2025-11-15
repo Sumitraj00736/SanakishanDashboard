@@ -8,11 +8,14 @@ export default function AdminLayout() {
     <div className="flex h-screen">
       <Sidebar /> {/* Sidebar always visible */}
       <div className="flex-1 flex flex-col bg-gray-100">
-        <Navbar /> {/* Navbar always visible */}
-        <main
-        className="ml-64 w-full p-6 bg-gray-100 min-h-screen z-30"
-        style={{ marginLeft: "256px" }} 
+        {/* Navbar always visible */}
+]        <main
+        className="ml-64 w-full max-w-6xl p-6 bg-gray-100 min-h-screen z-30"
+        // style={{ marginLeft: "256px" }} 
       >
+                {/* <Navbar /> */}
+
+         
         <Outlet />
       </main>
       </div>
