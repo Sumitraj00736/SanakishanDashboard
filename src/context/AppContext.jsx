@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const AppContext = createContext();
 
-const BASE_URL = "http://localhost:4000/api"; // change if needed
+const BASE_URL = "https://shanakishan-backend.onrender.com/api"; // change if needed
 
 // create axios instances
 const publicClient = axios.create({
