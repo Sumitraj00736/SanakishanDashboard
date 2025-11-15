@@ -22,9 +22,11 @@ export default function Bookings() {
 
   const load = async () => {
     const b = await fetchBookings();
+    console.log("Loaded bookings:", b);
     setBookings(Array.isArray(b) ? b : b.bookings || []);
   };
 
+  console.log("Bookings state:", bookings);
   useEffect(() => {
     load();
   }, []);
@@ -153,11 +155,11 @@ export default function Bookings() {
                 <td className="p-3">
                   <div className="text-xs">
                     <span className="text-gray-500">Price/unit:</span>{" "}
-                    <b>{b.pricePerUnit || b.productSnapshot?.basePrice}</b>
+                    <b>{b.pricePerHour || b.productSnapshot?.pricePerHour}</b>
                   </div>
                   <div className="text-xs">
                     <span className="text-gray-500">Total:</span>{" "}
-                    <b>{b.totalAmount}</b>
+                    <b>{b.totalRent}</b>
                   </div>
                 </td>
 
