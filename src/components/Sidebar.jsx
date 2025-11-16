@@ -15,8 +15,16 @@ export default function Sidebar() {
   return (
     <aside className="w-64 fixed top-0 left-0 h-full bg-green-800 text-white z-40">
       {" "}
-      <div className="p-6 text-xl font-bold">SanaKishan</div>
-      <div className="w-full h-[0.3%] bg-gray-900 "></div>
+     <div className="p-6 flex items-center gap-2 text-xl font-bold font-serif">
+  <img
+    src="/sanakishanlogo.jpeg" 
+    alt="Logo"
+    className="w-16 h-16 object-contain rounded-full"
+  />
+  <span>Sana Kishan</span>
+</div>
+
+      <div className="w-full h-[2px] bg-gray-900 mb-3"></div>
       <nav className="mt-6">
         {links.map((l) => (
           <NavLink
@@ -32,16 +40,14 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-      
       <div className="absolute bottom-6 w-full px-6">
+        {/* Separator line above logout */}
+        <div className="w-full h-[2px] bg-gray-900 mb-3"></div>
 
-        
         <button
           onClick={logout}
           className="w-full text-left py-2 rounded hover:bg-red-600"
         >
-        <div className="w-full h-[0.3%] bg-gray-900 "></div>
-
           Logout
         </button>
       </div>

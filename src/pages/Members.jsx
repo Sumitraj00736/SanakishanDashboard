@@ -92,9 +92,9 @@ export default function Members() {
 
   if (!members)
     return (
-      <AdminLayout>
+      <>
         <Loader />
-      </AdminLayout>
+      </>
     );
 
   return (

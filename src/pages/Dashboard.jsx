@@ -19,9 +19,9 @@ export default function Dashboard() {
   }, []);
 
   if (!stats) return (
-    <AdminLayout>
+    <>
       <Loader />
-    </AdminLayout>
+    </>
   );
 
   const pieData = [

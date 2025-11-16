@@ -21,8 +21,8 @@ export default function Products() {
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [newProduct, setNewProduct] = useState({
-    productId: "",
     name: "",
+    description: "",
     totalUnits: 0,
     reservedUnits: 0,
     basePrice: 0,
@@ -78,12 +78,12 @@ export default function Products() {
   const handleEdit = (product) => {
     setEditingId(product._id);
     setEditValues({
-      productId: product._id || "",
       name: product.name,
+      description: product.description || "",
       totalUnits: product.totalUnits,
       reservedUnits: product.reservedUnits || 0,
       basePrice: product.basePrice,
-      memberPrice: product.memberPrice,
+      memberPrice: product.memberPrice || 0,
     });
   };
 
@@ -104,38 +104,30 @@ export default function Products() {
     try {
       const formData = new FormData();
       formData.append("name", newProduct.name);
+      formData.append("description", newProduct.description);
       formData.append("totalUnits", newProduct.totalUnits);
       formData.append("reservedUnits", newProduct.reservedUnits);
       formData.append("basePrice", newProduct.basePrice);
       formData.append("memberPrice", newProduct.memberPrice || 0);
-      formData.append("maintenanceUnits", newProduct.maintenanceUnits || 0);
-      formData.append("refundableDeposit", newProduct.refundableDeposit || 0);
       formData.append("isActive", newProduct.isActive ?? true);
-      formData.append("images", newProduct.images || []);
 
       if (newProduct.images && newProduct.images.length > 0) {
         newProduct.images.forEach((file) => {
           formData.append("images", file);
         });
       }
+
       console.log("FormData entries:");
       for (let pair of formData.entries()) {
         console.log(pair[0] + ": ", pair[1]);
       }
-      console.log("Creating product with data:", {
-        name: newProduct.name,
-        totalUnits: newProduct.totalUnits,
-        reservedUnits: newProduct.reservedUnits,
-        basePrice: newProduct.basePrice,
-        memberPrice: newProduct.memberPrice || 0,
-        images: newProduct.images,
-      });
-      // call your context API
+
       await createProduct(formData);
 
       // reset form
       setNewProduct({
         name: "",
+        description: "",
         totalUnits: 0,
         reservedUnits: 0,
         basePrice: 0,
@@ -149,7 +141,6 @@ export default function Products() {
     }
   };
 
-  console.log("Rendering Products component");
   if (loading || productsLoading) return <Loader />;
 
   return (
@@ -186,8 +177,8 @@ export default function Products() {
         <table className="w-full">
           <thead className="bg-gray-50 text-left text-gray-600">
             <tr>
-              <th className="p-4 font-semibold">Product ID</th>
               <th className="p-4 font-semibold">Name</th>
+              <th className="p-4 font-semibold">Description</th>
               <th className="p-4 font-semibold">Total Units</th>
               <th className="p-4 font-semibold">Reserved Units</th>
               <th className="p-4 font-semibold">Base Price</th>
@@ -208,20 +199,6 @@ export default function Products() {
                       <td className="p-4">
                         <input
                           type="text"
-                          value={editValues.productId}
-                          onChange={(e) =>
-                            setEditValues({
-                              ...editValues,
-                              productId: e.target.value,
-                            })
-                          }
-                          className="border p-2 rounded w-full"
-                        />
-                      </td>
-
-                      <td className="p-4">
-                        <input
-                          type="text"
                           value={editValues.name}
                           onChange={(e) =>
                             setEditValues({
@@ -230,6 +207,19 @@ export default function Products() {
                             })
                           }
                           className="border p-2 rounded w-full"
+                        />
+                      </td>
+
+                      <td className="p-4">
+                        <textarea
+                          value={editValues.description}
+                          onChange={(e) =>
+                            setEditValues({
+                              ...editValues,
+                              description: e.target.value,
+                            })
+                          }
+                          className="border p-2 rounded w-full min-h-[80px]"
                         />
                       </td>
 
@@ -306,13 +296,13 @@ export default function Products() {
                     </>
                   ) : (
                     <>
-                      <td className="p-4">{p._id || "-"}</td>
                       <td className="p-4">{p.name}</td>
+                      <td className="p-4 max-w-[250px] truncate">
+                        {p.description || "-"}
+                      </td>
                       <td className="p-4">{p.totalUnits}</td>
                       <td className="p-4">{p.reservedUnits}</td>
-                      <td className="p-4">
-                        NPR {p.basePrice.toLocaleString()}
-                      </td>
+                      <td className="p-4">NPR {p.basePrice.toLocaleString()}</td>
                       <td className="p-4">
                         {p.memberPrice
                           ? `NPR ${p.memberPrice.toLocaleString()}`
@@ -354,7 +344,7 @@ export default function Products() {
             <h2 className="text-xl font-bold mb-4">Add New Product</h2>
 
             <div className="grid gap-4">
-              {/* Product Name */}
+              {/* Name */}
               <div className="flex flex-col">
                 <label className="mb-1 font-medium">Name</label>
                 <input
@@ -365,6 +355,22 @@ export default function Products() {
                     setNewProduct({ ...newProduct, name: e.target.value })
                   }
                   className="border p-2 rounded"
+                />
+              </div>
+
+              {/* Description */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Description</label>
+                <textarea
+                  placeholder="Enter product description"
+                  value={newProduct.description}
+                  onChange={(e) =>
+                    setNewProduct({
+                      ...newProduct,
+                      description: e.target.value,
+                    })
+                  }
+                  className="border p-2 rounded min-h-[100px]"
                 />
               </div>
 
@@ -452,7 +458,6 @@ export default function Products() {
                   multiple
                   accept="image/*"
                   onChange={(e) => {
-                    // Save files directly in state
                     setNewProduct({
                       ...newProduct,
                       images: Array.from(e.target.files),
@@ -460,13 +465,12 @@ export default function Products() {
                   }}
                   className="border p-2 rounded"
                 />
-
                 {newProduct.images && newProduct.images.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {newProduct.images.map((file, idx) => (
                       <img
                         key={idx}
-                        src={URL.createObjectURL(file)} // temporary preview only
+                        src={URL.createObjectURL(file)}
                         alt={`preview-${idx}`}
                         className="w-20 h-20 object-cover rounded border"
                       />

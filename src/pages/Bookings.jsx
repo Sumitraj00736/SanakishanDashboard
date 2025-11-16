@@ -83,9 +83,9 @@ export default function Bookings() {
 
   if (!bookings)
     return (
-      <AdminLayout>
+      <>
         <Loader />
-      </AdminLayout>
+      </>
     );
 
   // SEARCH FILTER
