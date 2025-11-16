@@ -20,27 +20,34 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div
-        className="w-full max-w-md bg-green-700 p-8 rounded-xl shadow-lg transform transition-all duration-500 ease-out animate-slide-up"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-white text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      {/* Login Box with thick green border */}
+      <div className="w-full max-w-md border-8 border-green-700 rounded-2xl shadow-2xl p-8 bg-white relative overflow-hidden">
+        {/* Header "SanaKishan" */}
+        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-700 px-8 py-2 rounded-xl shadow-lg text-white text-3xl font-bold tracking-widest animate-slide-down">
+          SanaKishan
+        </div>
+
+        <h2 className="text-2xl font-bold mb-6 text-green-800 text-center mt-12">
           Admin Login
         </h2>
+
+        {/* Error Message */}
         {err && (
           <div className="mb-4 text-red-200 bg-red-800/50 p-3 rounded-md text-sm animate-pulse">
             {err}
           </div>
         )}
+
         <form onSubmit={submit} className="space-y-5">
           <div className="relative">
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="w-full p-3 bg-white/90 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-300 hover:border-green-400 text-gray-800 placeholder-gray-400"
+              className="w-full p-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-300 hover:border-green-400 text-gray-800 placeholder-gray-400 bg-green-50"
             />
-            <label className="absolute -top-2 left-3 bg-green-700 px-1 text-xs font-medium text-gre00">
+            <label className="absolute -top-2 left-3 bg-green-50 px-1 text-xs font-medium text-green-700">
               Email
             </label>
           </div>
@@ -50,15 +57,15 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               type="password"
-              className="w-full p-3 bg-white/90 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-300 hover:border-green-400 text-gray-800 placeholder-gray-400"
+              className="w-full p-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-300 hover:border-green-400 text-gray-800 placeholder-gray-400 bg-green-50"
             />
-            <label className="absolute -top-2 left-3 bg-green-700 px-1 text-xs font-medium text-green-200">
+            <label className="absolute -top-2 left-3 bg-green-50 px-1 text-xs font-medium text-green-700">
               Password
             </label>
           </div>
           <button
             type="submit"
-            className="w-full bg-green-400 text-gray-900 py-3 rounded-lg font-semibold hover:bg-green-300 hover:scale-105 active:scale-95 transition-all duration-300 shadow-md"
+            className="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-600 hover:scale-105 active:scale-95 transition-all duration-300 shadow-md"
           >
             Login
           </button>
