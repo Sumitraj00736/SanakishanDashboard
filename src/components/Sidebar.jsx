@@ -32,11 +32,16 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
+      
       <div className="absolute bottom-6 w-full px-6">
+
+        
         <button
           onClick={logout}
           className="w-full text-left py-2 rounded hover:bg-red-600"
         >
+        <div className="w-full h-[0.3%] bg-gray-900 "></div>
+
           Logout
         </button>
       </div>

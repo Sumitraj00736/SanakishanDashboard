@@ -20,6 +20,10 @@ export default function Bookings() {
   const [verifyMethod, setVerifyMethod] = useState("cash");
   const [verifyAmount, setVerifyAmount] = useState("");
 
+  // Helper to convert UTC -> Nepal Time
+  const toNPT = (date) =>
+    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kathmandu" });
+
   const load = async () => {
     const b = await fetchBookings();
     console.log("Loaded bookings:", b);
@@ -27,6 +31,7 @@ export default function Bookings() {
   };
 
   console.log("Bookings state:", bookings);
+
   useEffect(() => {
     load();
   }, []);
@@ -163,13 +168,8 @@ export default function Bookings() {
                   </div>
                 </td>
 
-                <td className="p-3">
-                  {new Date(b.startDateTime).toLocaleString()}
-                </td>
-
-                <td className="p-3">
-                  {new Date(b.endDateTime).toLocaleString()}
-                </td>
+                <td className="p-3">{toNPT(b.startDateTime)}</td>
+                <td className="p-3">{toNPT(b.endDateTime)}</td>
 
                 <td className="p-3">
                   <span
@@ -313,9 +313,11 @@ export default function Bookings() {
               <p>
                 <b>User:</b> {selectedBooking.userName}
               </p>
+
               <p>
                 <b>Phone:</b> {selectedBooking.userPhone}
               </p>
+
               <p>
                 <b>Email:</b> {selectedBooking.userEmail}
               </p>
@@ -331,16 +333,11 @@ export default function Bookings() {
               </p>
 
               <p>
-                <b>Start:</b>{" "}
-                {new Date(
-                  selectedBooking.startDateTime || selectedBooking.startDate
-                ).toLocaleString()}
+                <b>Start:</b> {toNPT(selectedBooking.startDateTime)}
               </p>
+
               <p>
-                <b>End:</b>{" "}
-                {new Date(
-                  selectedBooking.endDateTime || selectedBooking.endDate
-                ).toLocaleString()}
+                <b>End:</b> {toNPT(selectedBooking.endDateTime)}
               </p>
 
               <p>

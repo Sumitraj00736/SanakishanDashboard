@@ -10,7 +10,7 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col bg-gray-100">
         {/* Navbar always visible */}
 ]        <main
-        className="ml-64 w-full max-w-6xl p-6 bg-gray-100 min-h-screen z-30"
+        className="pr-74 ml-64 w-full p-6 bg-gray-100 h-full z-30"
         // style={{ marginLeft: "256px" }} 
       >
                 {/* <Navbar /> */}

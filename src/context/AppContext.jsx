@@ -19,12 +19,35 @@ export function AppProvider({ children }) {
   const authClient = axios.create({
     baseURL: BASE_URL,
   });
-  authClient.interceptors.request.use((config) => {
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+authClient.interceptors.request.use((config) => {
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  // Only set JSON Content-Type if it's NOT FormData
+  const isFormData = config.data instanceof FormData;
+
+  if (!isFormData) {
     config.headers["Content-Type"] = "application/json";
-    return config;
+  }
+
+  return config;
+});
+
+
+
+  const [auth, setAuth] = useState({
+    isLoggedIn: false,
+    token: null,
   });
 
+  // Load token from localStorage on reload
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setAuth({ isLoggedIn: true, token });
+    }
+  }, []);
   // AUTH
   const login = async (username, password) => {
     setLoading(true);
@@ -58,14 +81,27 @@ export function AppProvider({ children }) {
     console.log("Fetched products:", res.data);
     return res.data;
   };
-  const createProduct = async (payload) => {
-    const res = await authClient.post("/admin/products", payload);
+  // Create Product
+const createProduct = async (formData) => {
+  try {
+    const res = await authClient.post("/admin/products", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return res.data;
-  };
+  } catch (err) {
+    console.error("Error creating product:", err.response?.data || err);
+    throw err;
+  }
+};
+
+  // Update Product
   const updateProduct = async (id, payload) => {
     const res = await authClient.put(`/admin/products/${id}`, payload);
     return res.data;
   };
+  // Delete Product
   const deleteProduct = async (id) => {
     const res = await authClient.delete(`/admin/products/${id}`);
     return res.data;

@@ -18,6 +18,7 @@ export default function Products() {
   const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const [newProduct, setNewProduct] = useState({
     productId: "",
@@ -26,6 +27,7 @@ export default function Products() {
     reservedUnits: 0,
     basePrice: 0,
     memberPrice: 0,
+    images: [],
   });
 
   const [editingId, setEditingId] = useState(null);
@@ -45,7 +47,6 @@ export default function Products() {
       setLoading(false);
     }
   };
-  console.log("Products loaded:", listProducts);
 
   useEffect(() => {
     load();
@@ -101,27 +102,77 @@ export default function Products() {
   // Create new product
   const handleCreate = async () => {
     try {
-      await createProduct(newProduct);
+      const formData = new FormData();
+      formData.append("name", newProduct.name);
+      formData.append("totalUnits", newProduct.totalUnits);
+      formData.append("reservedUnits", newProduct.reservedUnits);
+      formData.append("basePrice", newProduct.basePrice);
+      formData.append("memberPrice", newProduct.memberPrice || 0);
+      formData.append("maintenanceUnits", newProduct.maintenanceUnits || 0);
+      formData.append("refundableDeposit", newProduct.refundableDeposit || 0);
+      formData.append("isActive", newProduct.isActive ?? true);
+      formData.append("images", newProduct.images || []);
+
+      if (newProduct.images && newProduct.images.length > 0) {
+        newProduct.images.forEach((file) => {
+          formData.append("images", file);
+        });
+      }
+      console.log("FormData entries:");
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ": ", pair[1]);
+      }
+      console.log("Creating product with data:", {
+        name: newProduct.name,
+        totalUnits: newProduct.totalUnits,
+        reservedUnits: newProduct.reservedUnits,
+        basePrice: newProduct.basePrice,
+        memberPrice: newProduct.memberPrice || 0,
+        images: newProduct.images,
+      });
+      // call your context API
+      await createProduct(formData);
+
+      // reset form
       setNewProduct({
-        productId: "",
         name: "",
         totalUnits: 0,
         reservedUnits: 0,
         basePrice: 0,
         memberPrice: 0,
+        images: [],
       });
+      setShowAddModal(false);
       load();
     } catch (err) {
       setError(err.message || "Failed to create product");
     }
   };
 
+  console.log("Rendering Products component");
   if (loading || productsLoading) return <Loader />;
 
   return (
     <>
+      {/* HEADER + SEARCH + ADD BUTTON */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Products</h1>
+
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Search by Product Name or ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border p-2 rounded shadow-sm"
+          />
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+          >
+            Add Product
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -129,81 +180,6 @@ export default function Products() {
           {error}
         </div>
       )}
-
-      {/* SEARCH BAR */}
-      <div className="mb-4 flex justify-end">
-        <input
-          type="text"
-          placeholder="Search by Product Name or ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border p-3 w-72 rounded-lg shadow-sm"
-        />
-      </div>
-
-      {/* CREATE NEW PRODUCT */}
-      <div className="mb-6 p-4 bg-white shadow rounded-lg grid grid-cols-6 gap-3">
-        <input
-          type="text"
-          placeholder="Product ID"
-          value={newProduct._id}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, productId: e.target.value })
-          }
-          className="border p-2 rounded"
-        />
-        <input
-          type="text"
-          placeholder="Name"
-          value={newProduct.name}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, name: e.target.value })
-          }
-          className="border p-2 rounded"
-        />
-        <input
-          type="number"
-          placeholder="Total Units"
-          value={newProduct.totalUnits}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, totalUnits: +e.target.value })
-          }
-          className="border p-2 rounded"
-        />
-        <input
-          type="number"
-          placeholder="Reserved Units"
-          value={newProduct.reservedUnits}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, reservedUnits: +e.target.value })
-          }
-          className="border p-2 rounded"
-        />
-        <input
-          type="number"
-          placeholder="Base Price"
-          value={newProduct.basePrice}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, basePrice: +e.target.value })
-          }
-          className="border p-2 rounded"
-        />
-        <input
-          type="number"
-          placeholder="Member Price"
-          value={newProduct.memberPrice}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, memberPrice: +e.target.value })
-          }
-          className="border p-2 rounded"
-        />
-        <button
-          onClick={handleCreate}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 col-span-6"
-        >
-          Add Product
-        </button>
-      </div>
 
       {/* PRODUCTS TABLE */}
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -370,6 +346,153 @@ export default function Products() {
           </tbody>
         </table>
       </div>
+
+      {/* ------------------ ADD PRODUCT MODAL ------------------ */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 w-[500px] rounded-xl shadow-xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Add New Product</h2>
+
+            <div className="grid gap-4">
+              {/* Product Name */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter Product Name"
+                  value={newProduct.name}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, name: e.target.value })
+                  }
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              {/* Total Units */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Total Units</label>
+                <input
+                  type="text"
+                  placeholder="Enter Total Units (number)"
+                  value={newProduct.totalUnits}
+                  onChange={(e) => {
+                    if (/^\d*$/.test(e.target.value)) {
+                      setNewProduct({
+                        ...newProduct,
+                        totalUnits: e.target.value,
+                      });
+                    }
+                  }}
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              {/* Reserved Units */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Reserved Units</label>
+                <input
+                  type="text"
+                  placeholder="Enter Reserved Units (number)"
+                  value={newProduct.reservedUnits}
+                  onChange={(e) => {
+                    if (/^\d*$/.test(e.target.value)) {
+                      setNewProduct({
+                        ...newProduct,
+                        reservedUnits: e.target.value,
+                      });
+                    }
+                  }}
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              {/* Base Price */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Base Price</label>
+                <input
+                  type="text"
+                  placeholder="Enter Base Price (number)"
+                  value={newProduct.basePrice}
+                  onChange={(e) => {
+                    if (/^\d*$/.test(e.target.value)) {
+                      setNewProduct({
+                        ...newProduct,
+                        basePrice: e.target.value,
+                      });
+                    }
+                  }}
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              {/* Member Price */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Member Price</label>
+                <input
+                  type="text"
+                  placeholder="Enter Member Price (number)"
+                  value={newProduct.memberPrice}
+                  onChange={(e) => {
+                    if (/^\d*$/.test(e.target.value)) {
+                      setNewProduct({
+                        ...newProduct,
+                        memberPrice: e.target.value,
+                      });
+                    }
+                  }}
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              {/* Images */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Images</label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    // Save files directly in state
+                    setNewProduct({
+                      ...newProduct,
+                      images: Array.from(e.target.files),
+                    });
+                  }}
+                  className="border p-2 rounded"
+                />
+
+                {newProduct.images && newProduct.images.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {newProduct.images.map((file, idx) => (
+                      <img
+                        key={idx}
+                        src={URL.createObjectURL(file)} // temporary preview only
+                        alt={`preview-${idx}`}
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded-lg"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleCreate}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg"
+              >
+                Add Product
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
