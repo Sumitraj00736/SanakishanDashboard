@@ -3,7 +3,7 @@ import AdminLayout from "../layout/AdminLayout.jsx";
 import { AppContext } from "../context/AppContext.jsx";
 import Loader from "../components/Loader.jsx";
 
-export default function SupportDashboard() {
+export default function Support() {
   const { fetchSupport, updateTicket } = useContext(AppContext);
 
   const [tickets, setTickets] = useState(null);

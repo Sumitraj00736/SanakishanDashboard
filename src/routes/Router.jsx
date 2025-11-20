@@ -8,7 +8,7 @@ import AddProduct from "../pages/AddProduct.jsx";
 import Members from "../pages/Members.jsx";
 import Bookings from "../pages/Bookings.jsx";
 import AdminLayout from "../layout/AdminLayout.jsx";
-import Support from "../pages/support.jsx";
+import Support from "../pages/Support.jsx";
 
 // Protect admin routes
 const PrivateRoute = ({ children }) => {
