@@ -4,10 +4,11 @@ import { AppContext } from "../context/AppContext.jsx";
 import Loader from "../components/Loader.jsx";
 
 export default function Bookings() {
-  const { fetchBookings, cancelBooking, verifyPayment } =
+  const { fetchBookings, cancelBooking, verifyPayment, fetchProducts } =
     useContext(AppContext);
 
   const [bookings, setBookings] = useState(null);
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
 
   // Modal States
@@ -24,16 +25,25 @@ export default function Bookings() {
   const toNPT = (date) =>
     new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kathmandu" });
 
-  const load = async () => {
+  const loadBookings = async () => {
     const b = await fetchBookings();
-    console.log("Loaded bookings:", b);
     setBookings(Array.isArray(b) ? b : b.bookings || []);
   };
 
-  console.log("Bookings state:", bookings);
+  const loadProducts = async () => {
+    const p = await fetchProducts();
+    setProducts(Array.isArray(p) ? p : p.products || []);
+  };
+
+  // Get product name from productId
+  const getProductName = (productId) => {
+    const product = products.find((p) => p._id === productId);
+    return product ? product.name : productId;
+  };
 
   useEffect(() => {
-    load();
+    loadBookings();
+    loadProducts();
   }, []);
 
   // --- CANCEL PROCESS ---
@@ -45,10 +55,9 @@ export default function Bookings() {
 
   const confirmCancel = async () => {
     if (!cancelReason.trim()) return;
-
     await cancelBooking(selectedBooking._id, cancelReason);
     setShowCancelModal(false);
-    load();
+    loadBookings();
   };
 
   // --- VERIFY PROCESS ---
@@ -61,14 +70,12 @@ export default function Bookings() {
 
   const confirmVerify = async () => {
     if (!verifyAmount.trim()) return;
-
     await verifyPayment(selectedBooking._id, {
       method: verifyMethod,
       amount: verifyAmount,
     });
-
     setShowVerifyModal(false);
-    load();
+    loadBookings();
   };
 
   const openDetails = (booking) => {
@@ -81,12 +88,7 @@ export default function Bookings() {
     setSelectedBooking(null);
   };
 
-  if (!bookings)
-    return (
-      <>
-        <Loader />
-      </>
-    );
+  if (!bookings || !products) return <Loader />;
 
   // SEARCH FILTER
   const filtered = bookings.filter((b) => {
@@ -96,7 +98,7 @@ export default function Bookings() {
       b.userPhone?.toLowerCase().includes(q) ||
       b.userEmail?.toLowerCase().includes(q) ||
       b.memberId?.toLowerCase().includes(q) ||
-      b.productId?.toLowerCase().includes(q)
+      getProductName(b.productId)?.toLowerCase().includes(q)
     );
   });
 
@@ -105,10 +107,9 @@ export default function Bookings() {
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Bookings</h1>
-
         <input
           type="text"
-          placeholder="Search by name, phone, email, memberId, productId..."
+          placeholder="Search by name, phone, email, memberId, product..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="px-4 py-2 border rounded-lg w-96 shadow-sm"
@@ -153,7 +154,7 @@ export default function Bookings() {
                   )}
                 </td>
 
-                <td className="p-3">{b.productSnapshot?.name || b.productId}</td>
+                <td className="p-3">{getProductName(b.productId)}</td>
 
                 <td className="p-3 text-center font-medium">{b.quantity}</td>
 
@@ -222,40 +223,6 @@ export default function Bookings() {
           </div>
         )}
       </div>
-
-      {/* ------------------------------ */}
-      {/* CANCEL MODAL */}
-      {/* ------------------------------ */}
-      {showCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 w-[400px] rounded-xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Cancel Booking</h2>
-
-            <textarea
-              placeholder="Enter cancellation reason..."
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-              className="w-full border p-3 rounded-lg h-28"
-            ></textarea>
-
-            <div className="flex justify-end gap-3 mt-4">
-              <button
-                onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
-              >
-                Close
-              </button>
-              <button
-                onClick={confirmCancel}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
-              >
-                Confirm Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ------------------------------ */}
       {/* VERIFY PAYMENT MODAL */}
       {/* ------------------------------ */}

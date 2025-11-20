@@ -10,6 +10,7 @@ export default function Sidebar() {
     { to: "/products", label: "Products" },
     { to: "/members", label: "Members" },
     { to: "/bookings", label: "Bookings" },
+    {  to: "/support", label: "Support"}
   ];
 
   return (

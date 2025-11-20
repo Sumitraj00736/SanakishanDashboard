@@ -8,6 +8,7 @@ import AddProduct from "../pages/AddProduct.jsx";
 import Members from "../pages/Members.jsx";
 import Bookings from "../pages/Bookings.jsx";
 import AdminLayout from "../layout/AdminLayout.jsx";
+import Support from "../pages/support.jsx";
 
 // Protect admin routes
 const PrivateRoute = ({ children }) => {
@@ -36,6 +37,7 @@ const Router = () => {
         <Route path="products/add" element={<AddProduct />} />
         <Route path="members" element={<Members />} />
         <Route path="bookings" element={<Bookings />} />
+        <Route path="support" element={<Support/>}/>
       </Route>
 
       {/* ---------- FALLBACK ROUTE ---------- */}

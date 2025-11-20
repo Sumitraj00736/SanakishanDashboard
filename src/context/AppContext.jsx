@@ -153,11 +153,11 @@ const createProduct = async (formData) => {
 
   // SUPPORT
   const fetchSupport = async () => {
-    const res = await authClient.get("/support");
+    const res = await authClient.get("/admin/support");
     return res.data;
   };
   const updateTicket = async (id, payload) => {
-    const res = await authClient.put(`/support/${id}`, payload);
+    const res = await authClient.put(`/admin/support/${id}`, payload);
     return res.data;
   };
 
