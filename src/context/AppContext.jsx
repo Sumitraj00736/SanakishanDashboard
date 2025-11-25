@@ -5,7 +5,7 @@ import axios from "axios";
 // eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
 
-const BASE_URL = "http://15.206.128.54:4000/api";
+const BASE_URL = "/api";
 
 // create axios instances
 const publicClient = axios.create({
