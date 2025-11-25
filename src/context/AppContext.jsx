@@ -1,9 +1,11 @@
+/* eslint-disable no-unused-vars */
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
 
-const BASE_URL = "https://shanakishan-backend.onrender.com/api";
+const BASE_URL = "http://15.206.128.54:4000/api";
 
 // create axios instances
 const publicClient = axios.create({
