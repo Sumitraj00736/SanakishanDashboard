@@ -18,7 +18,7 @@ export default function Sidebar() {
       {" "}
      <div className="p-6 flex items-center gap-2 text-xl font-bold font-serif">
   <img
-    src="/sanakishanlogo.jpeg" 
+    src="/logo.jpg" 
     alt="Logo"
     className="w-16 h-16 object-contain rounded-full"
   />
