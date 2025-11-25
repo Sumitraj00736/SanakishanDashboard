@@ -44,12 +44,15 @@ authClient.interceptors.request.use((config) => {
   });
 
   // Load token from localStorage on reload
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setAuth({ isLoggedIn: true, token });
-    }
-  }, []);
+ // Load token from localStorage on reload
+useEffect(() => {
+  const token = localStorage.getItem("adminToken");  // ✅ FIXED
+  if (token) {
+    setAuth({ isLoggedIn: true, token });
+    setToken(token); // ✅ VERY IMPORTANT - now authClient gets token
+  }
+}, []);
+
   // AUTH
   const login = async (username, password) => {
     setLoading(true);
