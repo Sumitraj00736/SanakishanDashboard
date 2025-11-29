@@ -86,6 +86,8 @@ useEffect(() => {
     console.log("Fetched products:", res.data);
     return res.data;
   };
+
+
   // Create Product
 const createProduct = async (formData) => {
   try {
@@ -148,13 +150,18 @@ const createProduct = async (formData) => {
 
   // CATEGORIES
   const fetchCategories = async () => {
-    const res = await authClient.get("/admin/categories");
+    const res = await authClient.get("/categories");
     return res.data;
   };
   const createCategory = async (payload) => {
     const res = await authClient.post("/admin/categories", payload);
     return res.data;
   };
+
+  const updateCategory = async (id, body) => {
+  const res = await authClient.put(`/admin/categories/${id}`, body);
+  return res.data;
+};
 
   // SUPPORT
   const fetchSupport = async () => {
@@ -193,7 +200,7 @@ const createProduct = async (formData) => {
       // bookings
       fetchBookings, cancelBooking, verifyPayment,
       // categories
-      fetchCategories, createCategory,
+      fetchCategories, createCategory, updateCategory,
       // support
       fetchSupport, updateTicket,
       // dashboard
