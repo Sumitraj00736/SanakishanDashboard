@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useContext } from "react";
 import AdminLayout from "../layout/AdminLayout.jsx";
 import { AppContext } from "../context/AppContext.jsx";
@@ -7,6 +8,7 @@ export default function Products() {
   const {
     productsLoading,
     fetchProducts,
+    fetchCategories,
     deleteProduct,
     createProduct,
     updateProduct,
@@ -14,6 +16,7 @@ export default function Products() {
 
   const [listProducts, setListProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,13 +31,14 @@ export default function Products() {
     basePrice: 0,
     memberPrice: 0,
     images: [],
+    categoryId: "", // <-- API expects categoryId
   });
 
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
 
   // Load products
-  const load = async () => {
+  const loadProducts = async () => {
     try {
       setLoading(true);
       const data = await fetchProducts();
@@ -48,9 +52,21 @@ export default function Products() {
     }
   };
 
+  // Load categories
+  const loadCategories = async () => {
+    try {
+      const data = await fetchCategories();
+      const cats = Array.isArray(data) ? data : data.categories || [];
+      setCategories(cats);
+    } catch (err) {
+      setError(err.message || "Failed to load categories");
+    }
+  };
+
   useEffect(() => {
-    load();
-  }, [fetchProducts]);
+    loadProducts();
+    loadCategories();
+  }, [fetchProducts, fetchCategories]);
 
   // Search filter
   useEffect(() => {
@@ -68,7 +84,7 @@ export default function Products() {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
       await deleteProduct(id);
-      load();
+      loadProducts();
     } catch (err) {
       setError(err.message || "Failed to delete product");
     }
@@ -84,16 +100,21 @@ export default function Products() {
       reservedUnits: product.reservedUnits || 0,
       basePrice: product.basePrice,
       memberPrice: product.memberPrice || 0,
+      categoryId: product.categoryId || "", // <-- edit uses categoryId
     });
   };
 
   // Save edited product
   const handleUpdate = async (id) => {
+    if (!editValues.categoryId) {
+      alert("Category is required");
+      return;
+    }
     try {
       await updateProduct(id, editValues);
       setEditingId(null);
       setEditValues({});
-      load();
+      loadProducts();
     } catch (err) {
       setError(err.message || "Failed to update product");
     }
@@ -101,6 +122,11 @@ export default function Products() {
 
   // Create new product
   const handleCreate = async () => {
+    if (!newProduct.name.trim() || !newProduct.categoryId) {
+      alert("Product name and category are required");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("name", newProduct.name);
@@ -109,17 +135,13 @@ export default function Products() {
       formData.append("reservedUnits", newProduct.reservedUnits);
       formData.append("basePrice", newProduct.basePrice);
       formData.append("memberPrice", newProduct.memberPrice || 0);
+      formData.append("categoryId", newProduct.categoryId); // <-- send ID
       formData.append("isActive", newProduct.isActive ?? true);
 
       if (newProduct.images && newProduct.images.length > 0) {
         newProduct.images.forEach((file) => {
           formData.append("images", file);
         });
-      }
-
-      console.log("FormData entries:");
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ": ", pair[1]);
       }
 
       await createProduct(formData);
@@ -133,9 +155,10 @@ export default function Products() {
         basePrice: 0,
         memberPrice: 0,
         images: [],
+        categoryId: "",
       });
       setShowAddModal(false);
-      load();
+      loadProducts();
     } catch (err) {
       setError(err.message || "Failed to create product");
     }
@@ -179,6 +202,7 @@ export default function Products() {
             <tr>
               <th className="p-4 font-semibold">Name</th>
               <th className="p-4 font-semibold">Description</th>
+              <th className="p-4 font-semibold">Category</th>
               <th className="p-4 font-semibold">Total Units</th>
               <th className="p-4 font-semibold">Reserved Units</th>
               <th className="p-4 font-semibold">Base Price</th>
@@ -201,84 +225,76 @@ export default function Products() {
                           type="text"
                           value={editValues.name}
                           onChange={(e) =>
-                            setEditValues({
-                              ...editValues,
-                              name: e.target.value,
-                            })
+                            setEditValues({ ...editValues, name: e.target.value })
                           }
                           className="border p-2 rounded w-full"
                         />
                       </td>
-
                       <td className="p-4">
                         <textarea
                           value={editValues.description}
                           onChange={(e) =>
-                            setEditValues({
-                              ...editValues,
-                              description: e.target.value,
-                            })
+                            setEditValues({ ...editValues, description: e.target.value })
                           }
                           className="border p-2 rounded w-full min-h-[80px]"
                         />
                       </td>
-
+                      <td className="p-4">
+                        <select
+                          value={editValues.categoryId}
+                          onChange={(e) =>
+                            setEditValues({ ...editValues, categoryId: e.target.value })
+                          }
+                          className="border p-2 rounded w-full"
+                        >
+                          <option value="">Select Category</option>
+                          {categories.map((cat) => (
+                            <option key={cat._id} value={cat._id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.totalUnits}
                           onChange={(e) =>
-                            setEditValues({
-                              ...editValues,
-                              totalUnits: +e.target.value,
-                            })
+                            setEditValues({ ...editValues, totalUnits: +e.target.value })
                           }
                           className="border p-2 rounded w-full"
                         />
                       </td>
-
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.reservedUnits}
                           onChange={(e) =>
-                            setEditValues({
-                              ...editValues,
-                              reservedUnits: +e.target.value,
-                            })
+                            setEditValues({ ...editValues, reservedUnits: +e.target.value })
                           }
                           className="border p-2 rounded w-full"
                         />
                       </td>
-
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.basePrice}
                           onChange={(e) =>
-                            setEditValues({
-                              ...editValues,
-                              basePrice: +e.target.value,
-                            })
+                            setEditValues({ ...editValues, basePrice: +e.target.value })
                           }
                           className="border p-2 rounded w-full"
                         />
                       </td>
-
                       <td className="p-4">
                         <input
                           type="number"
                           value={editValues.memberPrice}
                           onChange={(e) =>
-                            setEditValues({
-                              ...editValues,
-                              memberPrice: +e.target.value,
-                            })
+                            setEditValues({ ...editValues, memberPrice: +e.target.value })
                           }
                           className="border p-2 rounded w-full"
                         />
                       </td>
-
                       <td className="p-4 space-x-2">
                         <button
                           onClick={() => handleUpdate(p._id)}
@@ -299,6 +315,9 @@ export default function Products() {
                       <td className="p-4">{p.name}</td>
                       <td className="p-4 max-w-[250px] truncate">
                         {p.description || "-"}
+                      </td>
+                      <td className="p-4">
+                        {categories.find((cat) => cat._id === p.categoryId)?.name || "-"}
                       </td>
                       <td className="p-4">{p.totalUnits}</td>
                       <td className="p-4">{p.reservedUnits}</td>
@@ -328,7 +347,7 @@ export default function Products() {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center p-4 text-gray-500">
+                <td colSpan="8" className="text-center p-4 text-gray-500">
                   No products found.
                 </td>
               </tr>
@@ -358,6 +377,25 @@ export default function Products() {
                 />
               </div>
 
+              {/* Category */}
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Category</label>
+                <select
+                  value={newProduct.categoryId}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, categoryId: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Description */}
               <div className="flex flex-col">
                 <label className="mb-1 font-medium">Description</label>
@@ -365,10 +403,7 @@ export default function Products() {
                   placeholder="Enter product description"
                   value={newProduct.description}
                   onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      description: e.target.value,
-                    })
+                    setNewProduct({ ...newProduct, description: e.target.value })
                   }
                   className="border p-2 rounded min-h-[100px]"
                 />
@@ -421,10 +456,7 @@ export default function Products() {
                   value={newProduct.basePrice}
                   onChange={(e) => {
                     if (/^\d*$/.test(e.target.value)) {
-                      setNewProduct({
-                        ...newProduct,
-                        basePrice: e.target.value,
-                      });
+                      setNewProduct({ ...newProduct, basePrice: e.target.value });
                     }
                   }}
                   className="border p-2 rounded"
@@ -440,10 +472,7 @@ export default function Products() {
                   value={newProduct.memberPrice}
                   onChange={(e) => {
                     if (/^\d*$/.test(e.target.value)) {
-                      setNewProduct({
-                        ...newProduct,
-                        memberPrice: e.target.value,
-                      });
+                      setNewProduct({ ...newProduct, memberPrice: e.target.value });
                     }
                   }}
                   className="border p-2 rounded"
