@@ -1,10 +1,12 @@
-[[redirects]]
-  from = "/api/*"
-  to = "http://15.206.128.54:4000/api/:splat"
-  status = 200
-  force = true
+# Redirect all API requests to backend
+# [[redirects]]
+#   from = "/api/*"
+#   to = "http://15.206.128.54:4000/api/:splat"
+#   status = 200
+#   force = true
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Catch all redirect to index.html (for SPA)
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200

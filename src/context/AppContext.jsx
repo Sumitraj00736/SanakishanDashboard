@@ -5,7 +5,7 @@ import axios from "axios";
 // eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
 
-const BASE_URL = "/api";
+const BASE_URL = "https://shanakishan-backend.onrender.com/api";
 
 // create axios instances
 const publicClient = axios.create({
