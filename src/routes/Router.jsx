@@ -1,6 +1,4 @@
-import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-
 import Login from "../pages/Login.jsx";
 import Dashboard from "../pages/Dashboard.jsx";
 import Products from "../pages/Products.jsx";
@@ -10,21 +8,15 @@ import Bookings from "../pages/Bookings.jsx";
 import AdminLayout from "../layout/AdminLayout.jsx";
 import Support from "../pages/Support.jsx";
 import Categories from "../pages/Categories.jsx";
-
-// Protect admin routes
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("adminToken");
-  return token ? children : <Navigate to="/login" replace />;
-};
+import PrivateRoute from "./PrivateRoutes.jsx";
 
 const Router = () => {
   return (
     <Routes>
-
-      {/* ---------- PUBLIC ROUTE ---------- */}
+      {/* PUBLIC */}
       <Route path="/login" element={<Login />} />
 
-      {/* ---------- PROTECTED ADMIN ROUTES ---------- */}
+      {/* PROTECTED ADMIN AREA */}
       <Route
         path="/"
         element={
@@ -38,13 +30,12 @@ const Router = () => {
         <Route path="products/add" element={<AddProduct />} />
         <Route path="members" element={<Members />} />
         <Route path="bookings" element={<Bookings />} />
-        <Route path="support" element={<Support/>}/>
-        <Route path="categories" element={<Categories/>}/>
+        <Route path="support" element={<Support />} />
+        <Route path="categories" element={<Categories />} />
       </Route>
 
-      {/* ---------- FALLBACK ROUTE ---------- */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-
+      {/* FALLBACK */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
