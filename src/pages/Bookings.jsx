@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useContext } from "react";
-import AdminLayout from "../layout/AdminLayout.jsx";
 import { AppContext } from "../context/AppContext.jsx";
 import Loader from "../components/Loader.jsx";
 
@@ -11,7 +10,7 @@ export default function Bookings() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
 
-  // Modal States
+  // Modal states
   const [showDetails, setShowDetails] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -21,10 +20,13 @@ export default function Bookings() {
   const [verifyMethod, setVerifyMethod] = useState("cash");
   const [verifyAmount, setVerifyAmount] = useState("");
 
-  // Helper to convert UTC -> Nepal Time
+  // UTC → Nepal Time
   const toNPT = (date) =>
-    new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kathmandu" });
+    new Date(date).toLocaleString("en-US", {
+      timeZone: "Asia/Kathmandu",
+    });
 
+  /* ---------------- LOAD DATA ---------------- */
   const loadBookings = async () => {
     const b = await fetchBookings();
     setBookings(Array.isArray(b) ? b : b.bookings || []);
@@ -35,18 +37,20 @@ export default function Bookings() {
     setProducts(Array.isArray(p) ? p : p.products || []);
   };
 
-  // Get product name from productId
-  const getProductName = (productId) => {
-    const product = products.find((p) => p._id === productId);
-    return product ? product.name : productId;
-  };
-
   useEffect(() => {
     loadBookings();
     loadProducts();
   }, []);
 
-  // --- CANCEL PROCESS ---
+  /* ---------------- HELPERS ---------------- */
+  const getProductName = (productId) => {
+    const p = products.find((x) => x._id === productId);
+    return p ? p.name : productId;
+  };
+
+  const normalizeStatus = (s) => s?.toLowerCase();
+
+  /* ---------------- CANCEL ---------------- */
   const openCancelModal = (b) => {
     setSelectedBooking(b);
     setCancelReason("");
@@ -55,31 +59,50 @@ export default function Bookings() {
 
   const confirmCancel = async () => {
     if (!cancelReason.trim()) return;
+
     await cancelBooking(selectedBooking._id, cancelReason);
+
+    // Optimistic UI update
+    setBookings((prev) =>
+      prev.map((b) =>
+        b._id === selectedBooking._id
+          ? {
+              ...b,
+              status: "cancelled",
+              adminNotes: cancelReason,
+            }
+          : b,
+      ),
+    );
+
     setShowCancelModal(false);
-    loadBookings();
+    setSelectedBooking(null);
+    setCancelReason("");
   };
 
-  // --- VERIFY PROCESS ---
+  /* ---------------- VERIFY ---------------- */
   const openVerifyModal = (b) => {
     setSelectedBooking(b);
-    setVerifyAmount("");
     setVerifyMethod("cash");
+    setVerifyAmount("");
     setShowVerifyModal(true);
   };
 
   const confirmVerify = async () => {
     if (!verifyAmount.trim()) return;
+
     await verifyPayment(selectedBooking._id, {
       method: verifyMethod,
       amount: verifyAmount,
     });
+
     setShowVerifyModal(false);
     loadBookings();
   };
 
-  const openDetails = (booking) => {
-    setSelectedBooking(booking);
+  /* ---------------- DETAILS ---------------- */
+  const openDetails = (b) => {
+    setSelectedBooking(b);
     setShowDetails(true);
   };
 
@@ -88,9 +111,10 @@ export default function Bookings() {
     setSelectedBooking(null);
   };
 
-  if (!bookings || !products) return <Loader />;
+  /* ---------------- LOADER ---------------- */
+  if (!bookings) return <Loader />;
 
-  // SEARCH FILTER
+  /* ---------------- SEARCH ---------------- */
   const filtered = bookings.filter((b) => {
     const q = search.toLowerCase();
     return (
@@ -102,242 +126,207 @@ export default function Bookings() {
     );
   });
 
+  /* ---------------- RENDER ---------------- */
   return (
     <>
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Bookings</h1>
         <input
-          type="text"
-          placeholder="Search by name, phone, email, memberId, product..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2 border rounded-lg w-96 shadow-sm"
+          placeholder="Search..."
+          className="px-4 py-2 border rounded-lg w-96"
         />
       </div>
 
       {/* TABLE */}
-      <div className="bg-white shadow rounded-lg overflow-hidden border">
-        <table className="w-full">
-          <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+      <div className="bg-white border rounded-lg shadow overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-100 uppercase text-gray-600">
             <tr>
               <th className="p-3 text-left">User</th>
-              <th className="p-3 text-left">Member</th>
-              <th className="p-3 text-left">Product</th>
-              <th className="p-3 text-left">Qty</th>
-              <th className="p-3 text-left">Pricing</th>
-              <th className="p-3 text-left">Start</th>
-              <th className="p-3 text-left">End</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Actions</th>
+              <th className="p-3">Member</th>
+              <th className="p-3">Product</th>
+              <th className="p-3">Qty</th>
+              <th className="p-3">Pricing</th>
+              <th className="p-3">Start</th>
+              <th className="p-3">End</th>
+              <th className="p-3">Status</th>
+              <th className="p-3">Actions</th>
             </tr>
           </thead>
 
-          <tbody className="text-sm">
-            {filtered.map((b) => (
-              <tr key={b._id} className="border-t hover:bg-gray-50">
-                <td className="p-3">
-                  <div className="font-medium">{b.userName}</div>
-                  <div className="text-xs text-gray-500">{b.userPhone}</div>
-                  <div className="text-xs text-gray-500">{b.userEmail}</div>
-                </td>
+          <tbody>
+            {filtered.map((b) => {
+              const status = normalizeStatus(b.status);
 
-                <td className="p-3">
-                  {b.memberId ? (
-                    <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
-                      Member ({b.memberId})
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
-                      General
-                    </span>
-                  )}
-                </td>
+              return (
+                <tr key={b._id} className="border-t hover:bg-gray-50">
+                  <td className="p-3">
+                    <div className="font-medium">{b.userName}</div>
+                    <div className="text-xs text-gray-500">{b.userPhone}</div>
+                    <div className="text-xs text-gray-500">{b.userEmail}</div>
+                  </td>
 
-                <td className="p-3">{getProductName(b.productId)}</td>
+                  <td className="p-3 text-center">
+                    {b.memberId ? (
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">
+                        Member
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                        General
+                      </span>
+                    )}
+                  </td>
 
-                <td className="p-3 text-center font-medium">{b.quantity}</td>
+                  <td className="p-3">{getProductName(b.productId)}</td>
+                  <td className="p-3 text-center">{b.quantity}</td>
 
-                <td className="p-3">
-                  <div className="text-xs">
-                    <span className="text-gray-500">Price/unit:</span>{" "}
-                    <b>{b.pricePerHour || b.productSnapshot?.pricePerHour}</b>
-                  </div>
-                  <div className="text-xs">
-                    <span className="text-gray-500">Total:</span>{" "}
-                    <b>{b.totalRent}</b>
-                  </div>
-                </td>
+                  <td className="p-3 text-xs">
+                    <div>Price/hr: {b.pricePerHour}</div>
+                    <div>Total: {b.totalRent}</div>
+                  </td>
 
-                <td className="p-3">{toNPT(b.startDateTime)}</td>
-                <td className="p-3">{toNPT(b.endDateTime)}</td>
+                  <td className="p-3">{toNPT(b.startDateTime)}</td>
+                  <td className="p-3">{toNPT(b.endDateTime)}</td>
 
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      b.status === "pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : b.status === "confirmed"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {b.status}
-                  </span>
-                </td>
-
-                <td className="p-3 space-x-3">
-                  <button
-                    onClick={() => openDetails(b)}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Details
-                  </button>
-
-                  {b.status !== "cancelled" && (
-                    <button
-                      onClick={() => openCancelModal(b)}
-                      className="text-red-600 hover:underline"
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        status === "pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : status === "confirmed"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
                     >
-                      Cancel
-                    </button>
-                  )}
+                      {status}
+                    </span>
+                  </td>
 
-                  {b.status === "pending" && (
+                  <td className="p-3 space-x-3">
                     <button
-                      onClick={() => openVerifyModal(b)}
-                      className="text-green-600 hover:underline"
+                      onClick={() => openDetails(b)}
+                      className="text-blue-600 hover:underline"
                     >
-                      Verify
+                      Details
                     </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+
+                    {!["cancelled", "canceled"].includes(status) && (
+                      <button
+                        onClick={() => openCancelModal(b)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                    )}
+
+                    {status === "pending" && (
+                      <button
+                        onClick={() => openVerifyModal(b)}
+                        className="text-green-600 hover:underline"
+                      >
+                        Verify
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
         {filtered.length === 0 && (
-          <div className="p-6 text-center text-gray-500">
-            No bookings found
-          </div>
+          <div className="p-6 text-center text-gray-500">No bookings found</div>
         )}
       </div>
-      {/* ------------------------------ */}
-      {/* VERIFY PAYMENT MODAL */}
-      {/* ------------------------------ */}
-      {showVerifyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 w-[400px] rounded-xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Verify Payment</h2>
 
-            <label className="block text-sm mb-2">Payment Method</label>
-            <select
-              value={verifyMethod}
-              onChange={(e) => setVerifyMethod(e.target.value)}
-              className="w-full border p-2 rounded-lg mb-4"
-            >
-              <option value="cash">Cash</option>
-              <option value="esewa">eSewa</option>
-              <option value="khalti">Khalti</option>
-            </select>
-
-            <label className="block text-sm mb-2">Amount Received</label>
-            <input
-              type="number"
-              value={verifyAmount}
-              onChange={(e) => setVerifyAmount(e.target.value)}
-              className="w-full border p-2 rounded-lg mb-4"
+      {/* CANCEL MODAL */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-[400px]">
+            <h2 className="text-lg font-bold mb-4">Cancel Booking</h2>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              className="w-full border p-2 rounded mb-4"
+              placeholder="Reason"
             />
-
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowVerifyModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
               >
                 Close
               </button>
               <button
-                onClick={confirmVerify}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                onClick={confirmCancel}
+                className="px-4 py-2 bg-red-600 text-white rounded"
               >
-                Verify Payment
+                Cancel Booking
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ------------------------------ */}
       {/* DETAILS MODAL */}
-      {/* ------------------------------ */}
       {showDetails && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white w-[500px] p-6 rounded-xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Booking Details</h2>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 w-[500px] rounded-xl">
+            <h2 className="text-lg font-bold mb-4">Booking Details</h2>
 
-            <div className="space-y-2 text-sm">
+            <div className="text-sm space-y-2">
               <p>
                 <b>User:</b> {selectedBooking.userName}
               </p>
-
               <p>
                 <b>Phone:</b> {selectedBooking.userPhone}
               </p>
-
               <p>
                 <b>Email:</b> {selectedBooking.userEmail}
               </p>
 
               <p>
-                <b>Product:</b>{" "}
-                {selectedBooking.productSnapshot?.name ||
-                  selectedBooking.productId}
+                <b>Status:</b>{" "}
+                <span
+                  className={
+                    ["cancelled", "canceled"].includes(
+                      selectedBooking.status?.toLowerCase(),
+                    )
+                      ? "text-red-600 font-semibold"
+                      : "text-gray-800"
+                  }
+                >
+                  {selectedBooking.status}
+                </span>
               </p>
 
               <p>
-                <b>Quantity:</b> {selectedBooking.quantity}
+                <b>Total:</b> {selectedBooking.totalAmount}
               </p>
 
-              <p>
-                <b>Start:</b> {toNPT(selectedBooking.startDateTime)}
-              </p>
-
-              <p>
-                <b>End:</b> {toNPT(selectedBooking.endDateTime)}
-              </p>
-
-              <p>
-                <b>Status:</b> {selectedBooking.status}
-              </p>
-
-              <p>
-                <b>Total Amount:</b> {selectedBooking.totalAmount}
-              </p>
-
-              {/* PAYMENT INFO */}
-              {selectedBooking.payment && (
-                <div className="bg-green-50 p-3 rounded-lg">
-                  <p className="font-semibold text-green-700">
-                    Payment Verified
-                  </p>
-                  <p>Method: {selectedBooking.payment.method}</p>
-                  <p>Amount: {selectedBooking.payment.amount}</p>
-                </div>
-              )}
-
-              {/* CANCELLATION INFO */}
-              {selectedBooking.adminNotes && (
-                <div className="bg-red-50 p-3 rounded-lg">
-                  <p className="font-semibold text-red-700">Cancellation</p>
-                  <p>{selectedBooking.adminNotes}</p>
-                </div>
-              )}
+              {/* CANCELLATION REASON */}
+              {["cancelled", "canceled"].includes(
+                selectedBooking.status?.toLowerCase(),
+              ) &&
+                selectedBooking.adminNotes && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 font-semibold">
+                      Cancellation Reason
+                    </p>
+                    <p className="text-red-600 text-sm">
+                      {selectedBooking.adminNotes}
+                    </p>
+                  </div>
+                )}
             </div>
 
             <button
               onClick={closeDetails}
-              className="mt-5 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 w-full"
+              className="mt-4 w-full bg-gray-800 text-white py-2 rounded"
             >
               Close
             </button>

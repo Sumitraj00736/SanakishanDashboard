@@ -10,45 +10,50 @@ export default function Sidebar() {
     { to: "/products", label: "Products" },
     { to: "/members", label: "Members" },
     { to: "/bookings", label: "Bookings" },
-    {  to: "/support", label: "Support"},
-    { to: '/categories', label: 'Categories' }
+    { to: "/support", label: "Support" },
+    { to: "/categories", label: "Categories" },
   ];
 
   return (
-    <aside className="w-64 fixed top-0 left-0 h-full bg-green-800 text-white z-40">
-      {" "}
-     <div className="p-6 flex items-center gap-2 text-xl font-bold font-serif">
-  <img
-    src="/logo.jpg" 
-    alt="Logo"
-    className="w-16 h-16 object-contain rounded-full"
-  />
-  <span>Sana Kishan</span>
-</div>
+    <aside className="fixed top-0 left-0 w-64 h-screen bg-green-800 text-white flex flex-col z-40">
+      
+      {/* Logo Section */}
+      <div className="p-6 flex flex-col items-center gap-2 border-b border-green-900">
+        <img
+          src="/logo.jpg"
+          alt="Sana Kishan Logo"
+          className="w-16 h-16 rounded-2xl object-contain border border-white/20"
+        />
+<span className="text-xl font-bold font-serif tracking-wide">
+  महिला सानाकिशन
+  <span className="block text-xs font-bold text-red-700 ">लक्ष्मीनिया गाउँपालिका</span>
+</span>
 
-      <div className="w-full h-[2px] bg-gray-900 mb-3"></div>
-      <nav className="mt-6">
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 mt-4 space-y-1">
         {links.map((l) => (
           <NavLink
             key={l.to}
             to={l.to}
             className={({ isActive }) =>
-              `block px-6 py-3 hover:bg-red-900 bg-opacity-10 ${
-                isActive ? "bg-red-900" : ""
-              }`
+              `mx-3 block px-4 py-3 rounded-lg transition-all duration-200
+               hover:bg-green-700
+               ${isActive ? "bg-green-900 font-semibold" : ""}`
             }
           >
             {l.label}
           </NavLink>
         ))}
       </nav>
-      <div className="absolute bottom-6 w-full px-6">
-        {/* Separator line above logout */}
-        <div className="w-full h-[2px] bg-gray-900 mb-3"></div>
 
+      {/* Logout Section */}
+      <div className="p-6 border-t border-green-900">
         <button
           onClick={logout}
-          className="w-full text-left py-2 rounded hover:bg-red-600"
+          className="w-full px-4 py-2 rounded-lg text-left
+                     hover:bg-red-600 transition-all duration-200"
         >
           Logout
         </button>
