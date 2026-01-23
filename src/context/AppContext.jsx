@@ -4,7 +4,7 @@ import axios from "axios";
 
 export const AppContext = createContext();
 
-const BASE_URL = "https://shanakishan-backend.onrender.com/api";
+const BASE_URL = "https://sanaapi.thesanatanisolutions.com/api";
 
 // public axios (no auth)
 const publicClient = axios.create({
