@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../context/AppContextInstance.js";
 
 export default function Sidebar() {
   const { logout } = useContext(AppContext);

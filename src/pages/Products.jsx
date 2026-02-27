@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useContext } from "react";
-import AdminLayout from "../layout/AdminLayout.jsx";
-import { AppContext } from "../context/AppContext.jsx";
+import { toast } from "react-toastify";
+import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Products() {
@@ -107,7 +107,7 @@ export default function Products() {
   // Save edited product
   const handleUpdate = async (id) => {
     if (!editValues.categoryId) {
-      alert("Category is required");
+      toast.error("Category is required");
       return;
     }
     try {
@@ -123,7 +123,7 @@ export default function Products() {
   // Create new product
   const handleCreate = async () => {
     if (!newProduct.name.trim() || !newProduct.categoryId) {
-      alert("Product name and category are required");
+      toast.error("Product name and category are required");
       return;
     }
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import AdminLayout from "../layout/AdminLayout.jsx";
-import { AppContext } from "../context/AppContext.jsx";
+import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Support() {
@@ -23,6 +22,14 @@ export default function Support() {
 
   useEffect(() => {
     loadTickets();
+    const onCreated = () => loadTickets();
+    const onUpdated = () => loadTickets();
+    window.addEventListener("support:created", onCreated);
+    window.addEventListener("support:updated", onUpdated);
+    return () => {
+      window.removeEventListener("support:created", onCreated);
+      window.removeEventListener("support:updated", onUpdated);
+    };
   }, []);
 
   const openUpdateModal = (ticket) => {

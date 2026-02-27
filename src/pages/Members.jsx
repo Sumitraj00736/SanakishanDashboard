@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import AdminLayout from "../layout/AdminLayout.jsx";
-import { AppContext } from "../context/AppContext.jsx";
+import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Members() {

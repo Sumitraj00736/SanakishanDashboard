@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { AppContext } from "../context/AppContext.jsx";
+import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Bookings() {
@@ -40,6 +40,13 @@ export default function Bookings() {
   useEffect(() => {
     loadBookings();
     loadProducts();
+    const onBookingEvent = () => loadBookings();
+    window.addEventListener("booking:created", onBookingEvent);
+    window.addEventListener("booking:updated", onBookingEvent);
+    return () => {
+      window.removeEventListener("booking:created", onBookingEvent);
+      window.removeEventListener("booking:updated", onBookingEvent);
+    };
   }, []);
 
   /* ---------------- HELPERS ---------------- */
@@ -272,6 +279,48 @@ export default function Bookings() {
         </div>
       )}
 
+      {/* VERIFY MODAL */}
+      {showVerifyModal && selectedBooking && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-[420px]">
+            <h2 className="text-lg font-bold mb-4">Verify Payment</h2>
+            <label className="mb-1 block text-sm font-medium">Method</label>
+            <select
+              value={verifyMethod}
+              onChange={(e) => setVerifyMethod(e.target.value)}
+              className="mb-4 w-full rounded border p-2"
+            >
+              <option value="cash">Cash</option>
+              <option value="online">Online</option>
+              <option value="card">Card</option>
+            </select>
+            <label className="mb-1 block text-sm font-medium">Amount</label>
+            <input
+              type="number"
+              min="0"
+              value={verifyAmount}
+              onChange={(e) => setVerifyAmount(e.target.value)}
+              className="mb-4 w-full rounded border p-2"
+              placeholder="Enter amount"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowVerifyModal(false)}
+                className="rounded bg-gray-300 px-4 py-2"
+              >
+                Close
+              </button>
+              <button
+                onClick={confirmVerify}
+                className="rounded bg-green-700 px-4 py-2 text-white"
+              >
+                Verify Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* DETAILS MODAL */}
       {showDetails && selectedBooking && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
@@ -305,7 +354,7 @@ export default function Bookings() {
               </p>
 
               <p>
-                <b>Total:</b> {selectedBooking.totalAmount}
+                <b>Total:</b> {selectedBooking.totalRent || selectedBooking.totalAmount}
               </p>
 
               {/* CANCELLATION REASON */}

@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
+import { toast } from "react-toastify";
 import AdminLayout from "../layout/AdminLayout.jsx";
-import { AppContext } from "../context/AppContext.jsx";
+import { AppContext } from "../context/AppContextInstance.js";
 import { useNavigate } from "react-router-dom";
 
 export default function AddProduct() {
@@ -35,7 +36,7 @@ export default function AddProduct() {
       await createProduct(payload);
       nav("/products");
     } catch (err) {
-      alert(err.message || "Failed");
+      toast.error(err.message || "Failed");
     } finally {
       setLoading(false);
     }

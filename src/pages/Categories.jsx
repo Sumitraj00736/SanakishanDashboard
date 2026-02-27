@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useContext } from "react";
-import AdminLayout from "../layout/AdminLayout.jsx";
-import { AppContext } from "../context/AppContext.jsx";
+import { toast } from "react-toastify";
+import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Categories() {
@@ -59,7 +59,7 @@ export default function Categories() {
   // Create new category
   const handleCreate = async () => {
     if (!newCategory.name.trim()) {
-      alert("Category name cannot be empty");
+      toast.error("Category name cannot be empty");
       return;
     }
 
@@ -83,7 +83,7 @@ export default function Categories() {
   // Update category
   const handleUpdate = async () => {
     if (!editCategory.name.trim()) {
-      alert("Category name cannot be empty");
+      toast.error("Category name cannot be empty");
       return;
     }
 

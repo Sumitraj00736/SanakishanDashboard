@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext.jsx";
+import { AppContext } from "../context/AppContextInstance.js";
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AppContext);
