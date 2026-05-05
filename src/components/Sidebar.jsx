@@ -46,7 +46,7 @@ export default function Sidebar({ collapsed = false, onToggle, onRequestLogout }
         />
         {!collapsed && (
           <span className="text-center text-xl font-bold font-serif tracking-wide">
-            महिला सानाकिशन
+            महिला साना किसान
             <span className="mt-1 block text-xs font-bold uppercase tracking-[0.18em] text-emerald-200">
               लक्ष्मीनिया गाउँपालिका
             </span>

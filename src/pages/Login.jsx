@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { LockKeyhole, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Building2, CheckCircle2, Eye, EyeOff, LockKeyhole, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const nav = useNavigate();
 
   const submit = async (e) => {
@@ -18,7 +20,10 @@ export default function Login() {
     const res = await login(email, password);
     setSubmitting(false);
     if (res.success) {
-      nav("/");
+      setShowSuccess(true);
+      window.setTimeout(() => {
+        nav("/");
+      }, 500);
       return;
     }
     setErr(res.message || "Login failed");
@@ -26,6 +31,17 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[#eef3ec]">
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25 p-4">
+          <div className="w-full max-w-sm border border-[#d8e3d4] bg-white px-6 py-7 text-center shadow-xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center border border-[#cfe1d0] bg-[#edf6ec] text-[#1f5f3b]">
+              <CheckCircle2 className="h-8 w-8" />
+            </div>
+            <p className="mt-4 text-lg font-semibold text-[#173b23]">Login Successful</p>
+          </div>
+        </div>
+      )}
+
       <div className="h-4 w-full bg-[#1f5f3b]" />
 
       <div className="mx-auto flex min-h-[calc(100vh-1rem)] max-w-6xl items-center justify-center px-6 py-10">
@@ -46,10 +62,15 @@ export default function Login() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight text-[#173b23]">
-                  महिला सानाकिशन
+                  महिला साना किसान
                 </h1>
-                <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
-                  लक्ष्मीनिया गाउँपालिका
+                <p className="mt-2 inline-flex items-center gap-2 text-base font-semibold tracking-[0.08em] text-[#2f6942]">
+                  <BadgeCheck className="h-4 w-4" />
+                  कस्टम हायरिङ
+                </p>
+                <p className="mt-1 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                  <MapPin className="h-4 w-4" />
+                  लक्ष्मीनिया गाउँपालिका - 7
                 </p>
               </div>
             </div>
@@ -65,7 +86,8 @@ export default function Login() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="border border-[#dbe4d7] bg-white px-4 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                  <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                    <Building2 className="h-4 w-4" />
                     Access Area
                   </p>
                   <p className="mt-2 text-sm text-slate-600">
@@ -73,7 +95,8 @@ export default function Login() {
                   </p>
                 </div>
                 <div className="border border-[#dbe4d7] bg-white px-4 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                  <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                    <ShieldCheck className="h-4 w-4" />
                     Sign-In Note
                   </p>
                   <p className="mt-2 text-sm text-slate-600">
@@ -107,25 +130,43 @@ export default function Login() {
                   <label className="mb-2 block text-sm font-semibold text-[#234a2f]">
                     Email
                   </label>
-                  <input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    className="w-full border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-3 text-gray-800 outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
-                  />
+                  <div className="flex items-center border border-[#cfd8cb] bg-[#fbfdfb] focus-within:border-[#2f6942] focus-within:ring-2 focus-within:ring-[#d7e6d8]">
+                    <span className="px-3 text-[#2f6942]">
+                      <Mail className="h-4 w-4" />
+                    </span>
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full bg-transparent px-1 py-3 text-gray-800 outline-none"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-[#234a2f]">
                     Password
                   </label>
-                  <input
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    type="password"
-                    className="w-full border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-3 text-gray-800 outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
-                  />
+                  <div className="flex items-center border border-[#cfd8cb] bg-[#fbfdfb] focus-within:border-[#2f6942] focus-within:ring-2 focus-within:ring-[#d7e6d8]">
+                    <span className="px-3 text-[#2f6942]">
+                      <LockKeyhole className="h-4 w-4" />
+                    </span>
+                    <input
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      type={showPassword ? "text" : "password"}
+                      className="w-full bg-transparent px-1 py-3 text-gray-800 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="px-3 text-[#2f6942] hover:text-[#173b23]"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <button
