@@ -216,21 +216,28 @@ export default function Products() {
 
   return (
     <>
-      {/* HEADER + SEARCH + ADD BUTTON */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Products</h1>
+      <div className="border border-[#d8e3d4] bg-white shadow-sm">
+        <div className="border-b border-[#dfe8db] bg-[#f6faf4] px-6 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2f6942]">
+            Product Management
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-[#173b23]">Products</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Manage products, categories, pricing, quantities, and image updates.
+          </p>
+        </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
           <input
             type="text"
-            placeholder="Search by Product Name or ID..."
+            placeholder="Search by product name or ID"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border p-2 rounded shadow-sm"
+            className="w-full max-w-md border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
           />
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+            className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#184d30]"
           >
             Add Product
           </button>
@@ -238,15 +245,14 @@ export default function Products() {
       </div>
 
       {error && (
-        <div className="text-red-600 bg-red-100 p-4 rounded-lg mb-6">
+        <div className="mt-6 border border-[#dcb7b7] bg-[#fbf0f0] p-4 text-[#8b2f2f]">
           {error}
         </div>
       )}
 
-      {/* PRODUCTS TABLE */}
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="mt-6 overflow-hidden border border-[#d8e3d4] bg-white shadow-sm">
         <table className="w-full">
-          <thead className="bg-gray-50 text-left text-gray-600">
+          <thead className="bg-[#f6faf4] text-left text-[#385241]">
             <tr>
               <th className="p-4 font-semibold">Image</th>
               <th className="p-4 font-semibold">Name</th>
@@ -263,16 +269,16 @@ export default function Products() {
           <tbody>
             {filteredProducts.length > 0 ? (
               filteredProducts.map((p) => (
-                <tr key={p._id} className="border-t hover:bg-gray-50 transition">
+                <tr key={p._id} className="border-t border-[#edf2ea] transition hover:bg-[#fafcf9]">
                   <td className="p-4">
                     {getImageSources(p.images)[0] ? (
                       <img
                         src={getImageSources(p.images)[0]}
                         alt={p.name}
-                        className="w-14 h-14 rounded-lg border object-cover"
+                        className="h-14 w-14 border border-[#d8e3d4] object-cover"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-lg border bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+                      <div className="flex h-14 w-14 items-center justify-center border border-[#d8e3d4] bg-[#f5f7f4] text-xs text-gray-400">
                         No image
                       </div>
                     )}
@@ -293,13 +299,13 @@ export default function Products() {
                   <td className="p-4 space-x-2">
                     <button
                       onClick={() => handleEdit(p)}
-                      className="text-blue-600 hover:text-blue-800 font-medium"
+                      className="font-medium text-[#2f6942] hover:text-[#1f5f3b]"
                     >
                       Update
                     </button>
                     <button
                       onClick={() => handleDelete(p._id)}
-                      className="text-red-600 hover:text-red-800 font-medium"
+                      className="font-medium text-[#a33636] hover:text-[#8f2f2f]"
                     >
                       Delete
                     </button>
@@ -319,14 +325,13 @@ export default function Products() {
 
       {/* ------------------ ADD PRODUCT MODAL ------------------ */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 w-[500px] rounded-xl shadow-xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Add New Product</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="max-h-[90vh] w-[500px] overflow-y-auto border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Add New Product</h2>
 
             <div className="grid gap-4">
-              {/* Name */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Name</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Name</label>
                 <input
                   type="text"
                   placeholder="Enter Product Name"
@@ -334,19 +339,18 @@ export default function Products() {
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, name: e.target.value })
                   }
-                  className="border p-2 rounded"
+                  className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
-              {/* Category */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Category</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Category</label>
                 <select
                   value={newProduct.categoryId}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, categoryId: e.target.value })
                   }
-                  className="border p-2 rounded w-full"
+                  className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -357,22 +361,20 @@ export default function Products() {
                 </select>
               </div>
 
-              {/* Description */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Description</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Description</label>
                 <textarea
                   placeholder="Enter product description"
                   value={newProduct.description}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, description: e.target.value })
                   }
-                  className="border p-2 rounded min-h-[100px]"
+                  className="min-h-[100px] border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
-              {/* Total Units */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Total Units</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Total Units</label>
                 <input
                   type="text"
                   placeholder="Enter Total Units (number)"
@@ -385,13 +387,12 @@ export default function Products() {
                       });
                     }
                   }}
-                  className="border p-2 rounded"
+                  className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
-              {/* Reserved Units */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Reserved Units</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Reserved Units</label>
                 <input
                   type="text"
                   placeholder="Enter Reserved Units (number)"
@@ -404,13 +405,12 @@ export default function Products() {
                       });
                     }
                   }}
-                  className="border p-2 rounded"
+                  className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
-              {/* Base Price */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Base Price</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Base Price</label>
                 <input
                   type="text"
                   placeholder="Enter Base Price (number)"
@@ -420,13 +420,12 @@ export default function Products() {
                       setNewProduct({ ...newProduct, basePrice: e.target.value });
                     }
                   }}
-                  className="border p-2 rounded"
+                  className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
-              {/* Member Price */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Member Price</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Member Price</label>
                 <input
                   type="text"
                   placeholder="Enter Member Price (number)"
@@ -436,13 +435,12 @@ export default function Products() {
                       setNewProduct({ ...newProduct, memberPrice: e.target.value });
                     }
                   }}
-                  className="border p-2 rounded"
+                  className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
-              {/* Images */}
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Images</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Images</label>
                 <input
                   type="file"
                   multiple
@@ -453,7 +451,7 @@ export default function Products() {
                       images: Array.from(e.target.files),
                     });
                   }}
-                  className="border p-2 rounded"
+                  className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5"
                 />
                 {newProduct.images && newProduct.images.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
@@ -462,7 +460,7 @@ export default function Products() {
                         key={idx}
                         src={URL.createObjectURL(file)}
                         alt={`preview-${idx}`}
-                        className="w-20 h-20 object-cover rounded border"
+                        className="h-20 w-20 border border-[#d8e3d4] object-cover"
                       />
                     ))}
                   </div>
@@ -473,13 +471,13 @@ export default function Products() {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
               >
                 Close
               </button>
               <button
                 onClick={handleCreate}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Add Product
               </button>
@@ -489,31 +487,31 @@ export default function Products() {
       )}
 
       {showEditModal && editingId && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 w-full max-w-2xl rounded-xl shadow-xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Edit Product</h2>
 
             <div className="grid gap-4">
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Name</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Name</label>
                 <input
                   type="text"
                   value={editValues.name || ""}
                   onChange={(e) =>
                     setEditValues({ ...editValues, name: e.target.value })
                   }
-                  className="border p-2 rounded"
+                  className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Category</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Category</label>
                 <select
                   value={editValues.categoryId || ""}
                   onChange={(e) =>
                     setEditValues({ ...editValues, categoryId: e.target.value })
                   }
-                  className="border p-2 rounded w-full"
+                  className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -525,68 +523,68 @@ export default function Products() {
               </div>
 
               <div className="flex flex-col">
-                <label className="mb-1 font-medium">Description</label>
+                <label className="mb-1 font-medium text-[#234a2f]">Description</label>
                 <textarea
                   value={editValues.description || ""}
                   onChange={(e) =>
                     setEditValues({ ...editValues, description: e.target.value })
                   }
-                  className="border p-2 rounded min-h-[100px]"
+                  className="min-h-[100px] border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium">Total Units</label>
+                  <label className="mb-1 font-medium text-[#234a2f]">Total Units</label>
                   <input
                     type="number"
                     value={editValues.totalUnits ?? 0}
                     onChange={(e) =>
                       setEditValues({ ...editValues, totalUnits: +e.target.value })
                     }
-                    className="border p-2 rounded"
+                    className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium">Reserved Units</label>
+                  <label className="mb-1 font-medium text-[#234a2f]">Reserved Units</label>
                   <input
                     type="number"
                     value={editValues.reservedUnits ?? 0}
                     onChange={(e) =>
                       setEditValues({ ...editValues, reservedUnits: +e.target.value })
                     }
-                    className="border p-2 rounded"
+                    className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium">Base Price</label>
+                  <label className="mb-1 font-medium text-[#234a2f]">Base Price</label>
                   <input
                     type="number"
                     value={editValues.basePrice ?? 0}
                     onChange={(e) =>
                       setEditValues({ ...editValues, basePrice: +e.target.value })
                     }
-                    className="border p-2 rounded"
+                    className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="mb-1 font-medium">Member Price</label>
+                  <label className="mb-1 font-medium text-[#234a2f]">Member Price</label>
                   <input
                     type="number"
                     value={editValues.memberPrice ?? 0}
                     onChange={(e) =>
                       setEditValues({ ...editValues, memberPrice: +e.target.value })
                     }
-                    className="border p-2 rounded"
+                    className="border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block font-medium">Current Images</label>
+                <label className="mb-2 block font-medium text-[#234a2f]">Current Images</label>
                 {Array.isArray(editValues.currentImages) &&
                 editValues.currentImages.length > 0 ? (
                   <div className="flex flex-wrap gap-3">
@@ -595,7 +593,7 @@ export default function Products() {
                         key={`${src}-${idx}`}
                         src={src}
                         alt={`current-product-image-${idx}`}
-                        className="w-24 h-24 rounded-lg border object-cover"
+                        className="h-24 w-24 border border-[#d8e3d4] object-cover"
                       />
                     ))}
                   </div>
@@ -605,7 +603,7 @@ export default function Products() {
               </div>
 
               <div className="flex flex-col">
-                <label className="mb-2 block font-medium">Upload New Images</label>
+                <label className="mb-2 block font-medium text-[#234a2f]">Upload New Images</label>
                 <input
                   type="file"
                   multiple
@@ -616,20 +614,20 @@ export default function Products() {
                       images: Array.from(e.target.files || []),
                     })
                   }
-                  className="border p-2 rounded w-full"
+                  className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5"
                 />
               </div>
 
               {Array.isArray(editValues.images) && editValues.images.length > 0 && (
                 <div>
-                  <label className="mb-2 block font-medium">Preview</label>
+                  <label className="mb-2 block font-medium text-[#234a2f]">Preview</label>
                   <div className="flex flex-wrap gap-3">
                     {editValues.images.map((file, idx) => (
                       <img
                         key={`${file.name}-${idx}`}
                         src={URL.createObjectURL(file)}
                         alt={`new-product-image-${idx}`}
-                        className="w-24 h-24 rounded-lg border object-cover"
+                        className="h-24 w-24 border border-[#d8e3d4] object-cover"
                       />
                     ))}
                   </div>
@@ -640,13 +638,13 @@ export default function Products() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={handleCloseEditModal}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleUpdate(editingId)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500"
+                className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Save Changes
               </button>

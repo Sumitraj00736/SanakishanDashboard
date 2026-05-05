@@ -1,14 +1,50 @@
 import React, { useContext, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Bell, PanelLeftClose, PanelLeftOpen, LogOut, ShieldCheck } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance";
 
-export default function Navbar() {
+const PAGE_META = {
+  "/": {
+    title: "Dashboard Overview",
+    subtitle: "Track bookings, products, members, and live updates in one place.",
+  },
+  "/products": {
+    title: "Products",
+    subtitle: "Manage inventory, pricing, and product visuals from one workspace.",
+  },
+  "/products/add": {
+    title: "Add Product",
+    subtitle: "Create a product entry with pricing, details, and availability.",
+  },
+  "/members": {
+    title: "Members",
+    subtitle: "Review member records and keep account data organized.",
+  },
+  "/bookings": {
+    title: "Bookings",
+    subtitle: "Monitor reservations, payment status, and operational activity.",
+  },
+  "/support": {
+    title: "Support",
+    subtitle: "Stay on top of support tickets and customer follow-ups.",
+  },
+  "/categories": {
+    title: "Categories",
+    subtitle: "Organize the catalog structure used across the platform.",
+  },
+};
+
+export default function Navbar({ sidebarCollapsed = false, onToggleSidebar }) {
   const {
+    admin,
+    logout,
     notifications,
     unreadNotifications,
     fetchAdminNotifications,
     markAdminNotificationRead,
     markAllAdminNotificationsRead,
   } = useContext(AppContext);
+  const location = useLocation();
   const [open, setOpen] = useState(false);
 
   React.useEffect(() => {
@@ -16,6 +52,8 @@ export default function Navbar() {
   }, [fetchAdminNotifications]);
 
   const latest = useMemo(() => notifications.slice(0, 15), [notifications]);
+  const pageMeta = PAGE_META[location.pathname] || PAGE_META["/"];
+  const adminName = admin?.username || admin?.name || admin?.email || "Administrator";
 
   const onMarkRead = async (id, read) => {
     if (read) return;
@@ -23,69 +61,106 @@ export default function Navbar() {
   };
 
   return (
-    <div className="w-full bg-white p-4 shadow border-b border-slate-200">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Admin Dashboard</h2>
-          <div className="relative">
+    <div className="sticky top-0 z-30 border-b border-[#cfd8cb] bg-[#f8fbf7] px-6 py-4">
+      <div className="border border-[#d9e3d5] bg-white px-5 py-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex min-w-[260px] items-start gap-3">
             <button
-              onClick={() => setOpen((v) => !v)}
-              className="relative rounded-full p-2.5 bg-slate-100 hover:bg-slate-200 transition"
+              onClick={onToggleSidebar}
+              className="mt-1 border border-[#cfd8cb] bg-[#f7faf6] p-2 text-[#234a2f] transition hover:bg-[#eef5ee]"
+              aria-label={sidebarCollapsed ? "Open sidebar" : "Collapse sidebar"}
             >
-              <span className="text-xl">🔔</span>
-              {unreadNotifications > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-rose-600 text-white text-xs font-bold flex items-center justify-center">
-                  {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                </span>
-              )}
+              {sidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
             </button>
-
-            {open && (
-              <div className="absolute right-0 mt-3 w-[420px] max-h-[560px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl z-50">
-                <div className="px-4 py-3 bg-gradient-to-r from-slate-900 to-slate-700 text-white flex items-center justify-between">
-                  <h3 className="font-semibold text-sm">Live Notifications</h3>
-                  <button
-                    onClick={markAllAdminNotificationsRead}
-                    className="text-xs px-2 py-1 rounded-md bg-white/15 hover:bg-white/25"
-                  >
-                    Mark all as read
-                  </button>
-                </div>
-
-                <div className="max-h-[500px] overflow-y-auto">
-                  {latest.length === 0 ? (
-                    <div className="px-4 py-10 text-sm text-slate-500 text-center">
-                      No notifications yet
-                    </div>
-                  ) : (
-                    latest.map((item) => (
-                      <button
-                        key={item._id}
-                        onClick={() => onMarkRead(item._id, item.read)}
-                        className={`w-full text-left px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition ${
-                          item.read ? "opacity-70" : "bg-sky-50/40"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="font-semibold text-slate-900 text-sm">{item.title}</p>
-                            <p className="text-xs text-slate-600 mt-1">{item.message}</p>
-                            <p className="text-[11px] text-slate-400 mt-2">
-                              {new Date(item.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                          {!item.read && (
-                            <span className="text-[10px] font-semibold text-sky-700 bg-sky-100 px-2 py-1 rounded">
-                              NEW
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
+            <div>
+              <div className="inline-flex items-center gap-2 border-l-4 border-[#1f5f3b] bg-[#eef5ee] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#1f5f3b]">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Admin Panel
               </div>
-            )}
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#16371f]">{pageMeta.title}</h2>
+              <p className="mt-1 text-sm text-slate-600">{pageMeta.subtitle}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden border border-[#d9e3d5] bg-[#f7faf6] px-4 py-3 text-right lg:block">
+              <div className="flex items-center justify-end gap-2 text-[#1f5f3b]">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="text-xs font-semibold uppercase tracking-[0.14em]">Authorized Session</span>
+              </div>
+              <p className="mt-1 text-sm font-semibold text-[#16371f]">{adminName}</p>
+              <p className="text-xs text-slate-500">Administrative access active</p>
+            </div>
+
+            <div className="relative">
+              <button
+                onClick={() => setOpen((v) => !v)}
+                className="relative border border-[#cfd8cb] bg-white p-3 text-[#234a2f] transition hover:bg-[#f4f8f2]"
+                aria-label="Toggle notifications"
+              >
+                <Bell className="h-5 w-5" />
+                {unreadNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-rose-600 text-white text-xs font-bold flex items-center justify-center">
+                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                  </span>
+                )}
+              </button>
+
+              {open && (
+                <div className="absolute right-0 z-50 mt-3 max-h-[560px] w-[420px] overflow-hidden border border-[#cfd8cb] bg-white shadow-lg">
+                  <div className="flex items-center justify-between bg-[#1f5f3b] px-4 py-3 text-white">
+                    <h3 className="font-semibold text-sm">Notifications</h3>
+                    <button
+                      onClick={markAllAdminNotificationsRead}
+                      className="border border-white/25 px-2 py-1 text-xs hover:bg-white/10"
+                    >
+                      Mark all as read
+                    </button>
+                  </div>
+
+                  <div className="max-h-[500px] overflow-y-auto">
+                    {latest.length === 0 ? (
+                      <div className="px-4 py-10 text-sm text-slate-500 text-center">
+                        No notifications yet
+                      </div>
+                    ) : (
+                      latest.map((item) => (
+                        <button
+                          key={item._id}
+                          onClick={() => onMarkRead(item._id, item.read)}
+                          className={`w-full border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50 ${
+                            item.read ? "opacity-70" : "bg-[#f1f7f1]"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="font-semibold text-slate-900 text-sm">{item.title}</p>
+                              <p className="text-xs text-slate-600 mt-1">{item.message}</p>
+                              <p className="text-[11px] text-slate-400 mt-2">
+                                {new Date(item.createdAt).toLocaleString()}
+                              </p>
+                            </div>
+                            {!item.read && (
+                              <span className="bg-[#dcedd8] px-2 py-1 text-[10px] font-semibold text-[#1f5f3b]">
+                                NEW
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={logout}
+              className="inline-flex items-center gap-2 border border-[#8f2f2f] bg-[#a33636] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#912d2d]"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </div>

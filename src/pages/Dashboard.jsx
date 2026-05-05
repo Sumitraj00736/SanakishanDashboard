@@ -2,9 +2,12 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   CircleDollarSign,
+  Filter,
   Download,
   PackageCheck,
+  RefreshCw,
   Ticket,
+  TrendingUp,
   XCircle,
 } from "lucide-react";
 import {
@@ -68,6 +71,16 @@ export default function Dashboard() {
   const chartSeries = analytics?.series || [];
   const topProducts = analytics?.breakdowns?.topProducts || [];
   const summary = analytics?.summary || {};
+  const totalSales = Number(summary.totalSales || 0);
+  const topProductName = topProducts[0]?.name || "No product data";
+  const selectedStatusLabel =
+    filters.status === "pending,confirmed,cancelled,completed"
+      ? "All Statuses"
+      : filters.status === "confirmed,completed"
+        ? "Confirmed / Completed"
+        : filters.status === "cancelled"
+          ? "Cancelled"
+          : "Pending";
 
   const onApplyFilters = async () => {
     await loadAnalytics(filters);
@@ -90,29 +103,70 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 via-white to-cyan-50 p-6 shadow-sm">
-        <div className="flex flex-wrap items-end gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Analytics Overview</h1>
-            <p className="text-sm text-slate-600">Track bookings, sales and cancellations with filters.</p>
+      <div className="border border-[#d8e3d4] bg-white shadow-sm">
+        <div className="border-b border-[#dfe8db] bg-[#f6faf4] px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2f6942]">
+                Dashboard Summary
+              </p>
+              <h1 className="mt-2 text-2xl font-bold text-[#173b23]">Analytics Overview</h1>
+              <p className="mt-1 text-sm text-slate-600">
+                Review bookings, sales trends, and operational activity from one place.
+              </p>
+            </div>
+
+            <button
+              onClick={() => loadAnalytics()}
+              className="inline-flex items-center gap-2 border border-[#cfd8cb] bg-white px-4 py-2.5 text-sm font-semibold text-[#234a2f] transition hover:bg-[#f5f8f4]"
+            >
+              <RefreshCw size={16} />
+              Refresh Data
+            </button>
           </div>
-          <div className="ml-auto flex flex-wrap gap-2">
+        </div>
+
+        <div className="grid gap-4 border-b border-[#dfe8db] px-6 py-5 md:grid-cols-3">
+          <div className="border-l-4 border-[#1f5f3b] bg-[#f8fbf7] px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">Current Filter</p>
+            <p className="mt-2 text-sm font-semibold text-[#173b23]">{selectedStatusLabel}</p>
+            <p className="mt-1 text-xs text-slate-500">Range: {filters.from || "Start not set"} to {filters.to || "Today"}</p>
+          </div>
+          <div className="border-l-4 border-[#366d49] bg-[#f8fbf7] px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">Sales Snapshot</p>
+            <p className="mt-2 text-sm font-semibold text-[#173b23]">NPR {totalSales.toLocaleString()}</p>
+            <p className="mt-1 text-xs text-slate-500">Based on the selected dashboard filters.</p>
+          </div>
+          <div className="border-l-4 border-[#4f7f5e] bg-[#f8fbf7] px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">Top Product</p>
+            <p className="mt-2 text-sm font-semibold text-[#173b23]">{topProductName}</p>
+            <p className="mt-1 text-xs text-slate-500">Highest sales item in the current summary.</p>
+          </div>
+        </div>
+
+        <div className="px-6 py-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Filter className="h-4 w-4 text-[#2f6942]" />
+            <h2 className="text-base font-semibold text-[#173b23]">Filter Controls</h2>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
             <input
               type="date"
               value={filters.from}
               onChange={(e) => setFilters((p) => ({ ...p, from: e.target.value }))}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="border border-[#cfd8cb] bg-[#fbfdfb] px-3 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
             />
             <input
               type="date"
               value={filters.to}
               onChange={(e) => setFilters((p) => ({ ...p, to: e.target.value }))}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="border border-[#cfd8cb] bg-[#fbfdfb] px-3 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
             />
             <select
               value={filters.status}
               onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value }))}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="border border-[#cfd8cb] bg-[#fbfdfb] px-3 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
             >
               <option value="pending,confirmed,cancelled,completed">All Statuses</option>
               <option value="confirmed,completed">Confirmed/Completed</option>
@@ -121,26 +175,29 @@ export default function Dashboard() {
             </select>
             <button
               onClick={onApplyFilters}
-              className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
+              className="border border-[#184d30] bg-[#1f5f3b] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#184d30]"
             >
-              Apply
+              Apply Filters
             </button>
           </div>
         </div>
       </div>
 
-      {error && <div className="rounded-lg bg-red-100 p-3 text-sm text-red-700">{error}</div>}
+      {error && <div className="border border-[#dcb7b7] bg-[#fbf0f0] p-3 text-sm text-[#8b2f2f]">{error}</div>}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Total Sales" value={`NPR ${Number(summary.totalSales || 0).toLocaleString()}`} bgColor="bg-emerald-700" icon={<CircleDollarSign />} />
-        <StatCard title="Total Bookings" value={summary.totalBookings || 0} bgColor="bg-blue-700" icon={<Ticket />} />
-        <StatCard title="Confirmed" value={summary.confirmedBookings || 0} bgColor="bg-teal-700" icon={<PackageCheck />} />
-        <StatCard title="Cancelled" value={summary.cancelledBookings || 0} bgColor="bg-rose-700" icon={<XCircle />} />
+        <StatCard title="Total Sales" value={`NPR ${totalSales.toLocaleString()}`} note="Overall sales for selected records" bgColor="bg-[#1f5f3b]" icon={<CircleDollarSign />} />
+        <StatCard title="Total Bookings" value={summary.totalBookings || 0} note="All bookings within current filters" bgColor="bg-[#295f42]" icon={<Ticket />} />
+        <StatCard title="Confirmed" value={summary.confirmedBookings || 0} note="Verified or completed reservations" bgColor="bg-[#3a714f]" icon={<PackageCheck />} />
+        <StatCard title="Cancelled" value={summary.cancelledBookings || 0} note="Cancelled records in selected period" bgColor="bg-[#8f3838]" icon={<XCircle />} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">Daily Sales & Bookings</h2>
+        <div className="border border-[#d8e3d4] bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-[#2f6942]" />
+            <h2 className="text-lg font-semibold text-[#173b23]">Daily Sales & Bookings</h2>
+          </div>
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartSeries}>
@@ -156,8 +213,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">Status Distribution</h2>
+        <div className="border border-[#d8e3d4] bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <Ticket className="h-5 w-5 text-[#2f6942]" />
+            <h2 className="text-lg font-semibold text-[#173b23]">Status Distribution</h2>
+          </div>
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -173,15 +233,17 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
-        <div className="mb-3 flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-slate-700" />
-          <h2 className="text-lg font-semibold text-slate-800">Top Products by Sales</h2>
-          <div className="ml-auto flex gap-2">
+      <div className="border border-[#d8e3d4] bg-white p-5 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-[#2f6942]" />
+            <h2 className="text-lg font-semibold text-[#173b23]">Top Products by Sales</h2>
+          </div>
+          <div className="ml-auto flex flex-wrap gap-2">
             <button
               onClick={() => exportReport("")}
               disabled={exporting}
-              className="inline-flex items-center gap-2 rounded-lg border border-emerald-700 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 border border-[#2f6942] px-3 py-2 text-sm font-semibold text-[#2f6942] transition hover:bg-[#f3f8f2] disabled:opacity-50"
             >
               <Download size={16} />
               Export Filtered CSV
@@ -189,7 +251,7 @@ export default function Dashboard() {
             <button
               onClick={() => exportReport("cancelled")}
               disabled={exporting}
-              className="rounded-lg bg-rose-700 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-600 disabled:opacity-50"
+              className="border border-[#8f3838] bg-[#a33636] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#912d2d] disabled:opacity-50"
             >
               Export Cancelled CSV
             </button>

@@ -76,21 +76,31 @@ export default function Support() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">Support Tickets</h1>
-        <input
-          type="text"
-          placeholder="Search by name, phone, email, message..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2 border rounded-lg w-96 shadow-sm"
-        />
+      <div className="border border-[#d8e3d4] bg-white shadow-sm">
+        <div className="border-b border-[#dfe8db] bg-[#f6faf4] px-6 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2f6942]">
+            Support Desk
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-[#173b23]">Support Tickets</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Review incoming support requests and send admin responses.
+          </p>
+        </div>
+
+        <div className="px-6 py-5">
+          <input
+            type="text"
+            placeholder="Search by name, phone, email, or message"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-md border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
+          />
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden border">
+      <div className="mt-6 overflow-hidden border border-[#d8e3d4] bg-white shadow-sm">
         <table className="w-full">
-          <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+          <thead className="bg-[#f6faf4] text-sm uppercase text-[#385241]">
             <tr>
               <th className="p-3 text-left">User</th>
               <th className="p-3 text-left">Member</th>
@@ -104,7 +114,7 @@ export default function Support() {
 
           <tbody className="text-sm">
             {filtered.map((t) => (
-              <tr key={t._id} className="border-t hover:bg-gray-50">
+              <tr key={t._id} className="border-t border-[#edf2ea] hover:bg-[#fafcf9]">
                 <td className="p-3">
                   <div className="font-medium">{t.name}</div>
                   <div className="text-xs text-gray-500">{t.phone}</div>
@@ -114,11 +124,11 @@ export default function Support() {
                 {/* Member Column */}
                 <td className="p-3">
                   {t.memberId ? (
-                    <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+                    <span className="px-2 py-1 text-xs bg-[#eaf4e7] text-[#1f5f3b]">
                       Member ({t.memberId})
                     </span>
                   ) : (
-                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                    <span className="px-2 py-1 text-xs bg-[#eef3f8] text-[#35506f]">
                       General
                     </span>
                   )}
@@ -130,10 +140,10 @@ export default function Support() {
                   <span
                     className={`px-2 py-1 rounded-full text-xs ${
                       t.status === "pending"
-                        ? "bg-yellow-100 text-yellow-700"
+                        ? "bg-[#fff3d9] text-[#9a6b00]"
                         : t.status === "in-progress"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-green-100 text-green-700"
+                        ? "bg-[#eef3f8] text-[#35506f]"
+                        : "bg-[#eaf4e7] text-[#1f5f3b]"
                     }`}
                   >
                     {t.status}
@@ -143,13 +153,13 @@ export default function Support() {
                 <td className="p-3 space-x-2">
                   <button
                     onClick={() => openDetails(t)}
-                    className="text-blue-600 hover:underline"
+                    className="text-[#2f6942] hover:underline"
                   >
                     Details
                   </button>
                   <button
                     onClick={() => openUpdateModal(t)}
-                    className="text-green-600 hover:underline"
+                    className="text-[#1f5f3b] hover:underline"
                   >
                     Update
                   </button>
@@ -168,15 +178,15 @@ export default function Support() {
       {/* UPDATE MODAL */}
       {/* ------------------------------ */}
       {showUpdateModal && selectedTicket && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white w-[500px] p-6 rounded-xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Update Ticket</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[500px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Update Ticket</h2>
 
             <label className="block text-sm mb-1">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full border p-2 rounded-lg mb-4"
+              className="mb-4 w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
             >
               <option value="pending">Pending</option>
               <option value="in-progress">In Progress</option>
@@ -188,19 +198,19 @@ export default function Support() {
               value={adminMessage}
               onChange={(e) => setAdminMessage(e.target.value)}
               placeholder="Write a reply..."
-              className="w-full border p-3 rounded-lg h-28 mb-4"
+              className="mb-4 h-28 w-full border border-[#cfd8cb] bg-[#fbfdfb] p-3 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
             ></textarea>
 
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowUpdateModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
               >
                 Close
               </button>
               <button
                 onClick={confirmUpdate}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Update Ticket
               </button>
@@ -213,9 +223,9 @@ export default function Support() {
       {/* DETAILS MODAL */}
       {/* ------------------------------ */}
       {showDetails && selectedTicket && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white w-[500px] p-6 rounded-xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Ticket Details</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[500px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Ticket Details</h2>
 
             <div className="space-y-2 text-sm">
               <p>
@@ -249,7 +259,7 @@ export default function Support() {
 
             <button
               onClick={closeDetails}
-              className="mt-5 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 w-full"
+              className="mt-5 w-full border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
             >
               Close
             </button>

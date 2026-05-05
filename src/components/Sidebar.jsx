@@ -2,6 +2,8 @@ import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import {
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   LayoutDashboard,
   Layers3,
   LifeBuoy,
@@ -11,7 +13,7 @@ import {
 } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false, onToggle }) {
   const { logout } = useContext(AppContext);
 
   const links = [
@@ -24,49 +26,73 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="fixed top-0 left-0 w-64 h-screen bg-green-800 text-white flex flex-col z-40">
+    <aside
+      className={`fixed top-0 left-0 z-40 flex h-screen flex-col border-r border-[#0f3f23] bg-[#1f5f3b] text-white shadow-md transition-all duration-300 ${
+        collapsed ? "w-20" : "w-64"
+      }`}
+    >
       
-      {/* Logo Section */}
-      <div className="p-6 flex flex-col items-center gap-2 border-b border-green-900">
+      <div className={`relative border-b border-white/10 bg-[#184d30] ${collapsed ? "p-4" : "p-6"}`}>
+        <button
+          onClick={onToggle}
+          className="absolute right-3 top-3 border border-white/15 bg-white/10 p-1.5 text-white hover:bg-white/20"
+          aria-label={collapsed ? "Open sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+
+        <div className={`flex flex-col items-center gap-2 ${collapsed ? "pt-6" : ""}`}>
         <img
           src="/logo.jpg"
           alt="Sana Kishan Logo"
-          className="w-16 h-16 rounded-2xl object-contain border border-white/20"
+          className={`${collapsed ? "h-12 w-12" : "h-16 w-16"} border border-white/20 bg-white object-contain p-1`}
         />
-<span className="text-xl font-bold font-serif tracking-wide">
-  महिला सानाकिशन
-  <span className="block text-xs font-bold text-red-700 ">लक्ष्मीनिया गाउँपालिका</span>
-</span>
-
+        {!collapsed && (
+          <span className="text-center text-xl font-bold font-serif tracking-wide">
+            महिला सानाकिशन
+            <span className="mt-1 block text-xs font-bold uppercase tracking-[0.18em] text-emerald-200">
+              लक्ष्मीनिया गाउँपालिका
+            </span>
+          </span>
+        )}
+        </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 mt-4 space-y-1">
         {links.map((l) => (
           <NavLink
             key={l.to}
             to={l.to}
             className={({ isActive }) =>
-              `mx-3 flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-               hover:bg-green-700
-               ${isActive ? "bg-green-900 font-semibold" : ""}`
+              `mx-3 flex items-center border-l-4 py-3 transition-all duration-200 ${
+                isActive
+                  ? "border-[#dbe9d8] bg-[#2a6a45] font-semibold text-white"
+                  : "border-transparent text-emerald-50/90 hover:bg-[#2a6a45] hover:text-white"
+              } ${collapsed ? "justify-center px-2" : "gap-3 px-4"}`
             }
+            title={collapsed ? l.label : undefined}
           >
             <l.icon size={18} />
-            <span>{l.label}</span>
+            {!collapsed && <span>{l.label}</span>}
           </NavLink>
         ))}
       </nav>
 
-      {/* Logout Section */}
-      <div className="p-6 border-t border-green-900">
+      <div className={`border-t border-white/10 ${collapsed ? "p-3" : "p-6"}`}>
+        {!collapsed && (
+          <div className="mb-3 border border-white/10 bg-[#184d30] px-4 py-3 text-sm text-emerald-50/90">
+            Dashboard access is active. Use logout after finishing your work.
+          </div>
+        )}
         <button
           onClick={logout}
-          className="w-full px-4 py-2 rounded-lg text-left flex items-center gap-3
-                     hover:bg-red-600 transition-all duration-200"
+          className={`flex w-full items-center border border-[#b14545] bg-[#a33636] py-3 text-left transition-all duration-200 hover:bg-[#912d2d] ${
+            collapsed ? "justify-center px-2" : "gap-3 px-4"
+          }`}
+          title={collapsed ? "Logout" : undefined}
         >
           <LogOut size={18} />
-          <span>Logout</span>
+          {!collapsed && <span>Logout</span>}
         </button>
       </div>
     </aside>

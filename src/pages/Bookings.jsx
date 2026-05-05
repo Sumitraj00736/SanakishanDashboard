@@ -57,6 +57,13 @@ export default function Bookings() {
 
   const normalizeStatus = (s) => s?.toLowerCase();
 
+  const getStatusClasses = (status) => {
+    if (status === "pending") return "bg-[#fff3d9] text-[#9a6b00]";
+    if (status === "confirmed") return "bg-[#eaf4e7] text-[#1f5f3b]";
+    if (status === "completed") return "bg-[#e6f0ea] text-[#234a2f]";
+    return "bg-[#fbebeb] text-[#8f2f2f]";
+  };
+
   /* ---------------- CANCEL ---------------- */
   const openCancelModal = (b) => {
     setSelectedBooking(b);
@@ -146,21 +153,30 @@ export default function Bookings() {
   /* ---------------- RENDER ---------------- */
   return (
     <>
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Bookings</h1>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search..."
-          className="px-4 py-2 border rounded-lg w-96"
-        />
+      <div className="border border-[#d8e3d4] bg-white shadow-sm">
+        <div className="border-b border-[#dfe8db] bg-[#f6faf4] px-6 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2f6942]">
+            Booking Records
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-[#173b23]">Bookings</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Track reservations, verify payments, and review booking activity.
+          </p>
+        </div>
+
+        <div className="px-6 py-5">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search user, member, or product"
+            className="w-full max-w-md border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
+          />
+        </div>
       </div>
 
-      {/* TABLE */}
-      <div className="bg-white border rounded-lg shadow overflow-hidden">
+      <div className="mt-6 overflow-hidden border border-[#d8e3d4] bg-white shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-gray-100 uppercase text-gray-600">
+          <thead className="bg-[#f6faf4] uppercase text-[#385241]">
             <tr>
               <th className="p-3 text-left">User</th>
               <th className="p-3">Member</th>
@@ -179,7 +195,7 @@ export default function Bookings() {
               const status = normalizeStatus(b.status);
 
               return (
-                <tr key={b._id} className="border-t hover:bg-gray-50">
+                <tr key={b._id} className="border-t border-[#edf2ea] hover:bg-[#fafcf9]">
                   <td className="p-3">
                     <div className="font-medium">{b.userName}</div>
                     <div className="text-xs text-gray-500">{b.userPhone}</div>
@@ -188,11 +204,11 @@ export default function Bookings() {
 
                   <td className="p-3 text-center">
                     {b.memberId ? (
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">
+                      <span className="px-2 py-1 text-xs bg-[#eaf4e7] text-[#1f5f3b]">
                         Member
                       </span>
                     ) : (
-                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                      <span className="px-2 py-1 text-xs bg-[#eef3f8] text-[#35506f]">
                         General
                       </span>
                     )}
@@ -211,13 +227,7 @@ export default function Bookings() {
 
                   <td className="p-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : status === "confirmed"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                      }`}
+                      className={`px-2 py-1 text-xs font-semibold ${getStatusClasses(status)}`}
                     >
                       {status}
                     </span>
@@ -226,7 +236,7 @@ export default function Bookings() {
                   <td className="p-3 space-x-3">
                     <button
                       onClick={() => openDetails(b)}
-                      className="text-blue-600 hover:underline"
+                      className="text-[#2f6942] hover:underline"
                     >
                       Details
                     </button>
@@ -234,7 +244,7 @@ export default function Bookings() {
                     {!["cancelled", "canceled"].includes(status) && (
                       <button
                         onClick={() => openCancelModal(b)}
-                        className="text-red-600 hover:underline"
+                        className="text-[#a33636] hover:underline"
                       >
                         Cancel
                       </button>
@@ -243,7 +253,7 @@ export default function Bookings() {
                     {status === "pending" && (
                       <button
                         onClick={() => openVerifyModal(b)}
-                        className="text-green-600 hover:underline"
+                        className="text-[#1f5f3b] hover:underline"
                       >
                         Verify
                       </button>
@@ -262,25 +272,25 @@ export default function Bookings() {
 
       {/* CANCEL MODAL */}
       {showCancelModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl w-[400px]">
-            <h2 className="text-lg font-bold mb-4">Cancel Booking</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[400px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-lg font-bold text-[#173b23]">Cancel Booking</h2>
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
-              className="w-full border p-2 rounded mb-4"
+              className="mb-4 w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#a33636] focus:ring-2 focus:ring-[#f3d4d4]"
               placeholder="Reason"
             />
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
               >
                 Close
               </button>
               <button
                 onClick={confirmCancel}
-                className="px-4 py-2 bg-red-600 text-white rounded"
+                className="border border-[#8f2f2f] bg-[#a33636] px-4 py-2 text-white"
               >
                 Cancel Booking
               </button>
@@ -291,14 +301,14 @@ export default function Bookings() {
 
       {/* VERIFY MODAL */}
       {showVerifyModal && selectedBooking && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl w-[420px]">
-            <h2 className="text-lg font-bold mb-4">Verify Payment</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[420px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-lg font-bold text-[#173b23]">Verify Payment</h2>
             <label className="mb-1 block text-sm font-medium">Method</label>
             <select
               value={verifyMethod}
               onChange={(e) => setVerifyMethod(e.target.value)}
-              className="mb-4 w-full rounded border p-2"
+              className="mb-4 w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
             >
               <option value="cash">Cash</option>
               <option value="online">Online</option>
@@ -310,19 +320,19 @@ export default function Bookings() {
               min="0"
               value={verifyAmount}
               onChange={(e) => setVerifyAmount(e.target.value)}
-              className="mb-4 w-full rounded border p-2"
+              className="mb-4 w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               placeholder="Enter amount"
             />
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowVerifyModal(false)}
-                className="rounded bg-gray-300 px-4 py-2"
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
               >
                 Close
               </button>
               <button
                 onClick={confirmVerify}
-                className="rounded bg-green-700 px-4 py-2 text-white"
+                className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Verify Payment
               </button>
@@ -333,9 +343,9 @@ export default function Bookings() {
 
       {/* DETAILS MODAL */}
       {showDetails && selectedBooking && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 w-[500px] rounded-xl">
-            <h2 className="text-lg font-bold mb-4">Booking Details</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[500px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-lg font-bold text-[#173b23]">Booking Details</h2>
 
             <div className="text-sm space-y-2">
               <p>
@@ -372,7 +382,7 @@ export default function Bookings() {
                 selectedBooking.status?.toLowerCase(),
               ) &&
                 selectedBooking.adminNotes && (
-                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="mt-3 border border-[#e7c6c6] bg-[#fbf0f0] p-3">
                     <p className="text-red-700 font-semibold">
                       Cancellation Reason
                     </p>
@@ -385,7 +395,7 @@ export default function Bookings() {
 
             <button
               onClick={closeDetails}
-              className="mt-4 w-full bg-gray-800 text-white py-2 rounded"
+              className="mt-4 w-full border border-[#184d30] bg-[#1f5f3b] py-2 text-white"
             >
               Close
             </button>

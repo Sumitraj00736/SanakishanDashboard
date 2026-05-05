@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import { useNavigate } from "react-router-dom";
 
@@ -7,73 +8,141 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
-  const [pressing, setPressing] = useState(false); // new state for press effect
+  const [submitting, setSubmitting] = useState(false);
   const nav = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
-    setPressing(true); // start press effect
-    setTimeout(() => setPressing(false), 150); // release after 150ms
+    setErr("");
+    setSubmitting(true);
     const res = await login(email, password);
+    setSubmitting(false);
     if (res.success) {
       nav("/");
-    } else {
-      setErr(res.message || "Login failed");
+      return;
     }
+    setErr(res.message || "Login failed");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md border-8 border-green-700 rounded-2xl shadow-2xl p-8 bg-white relative overflow-hidden">
-        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-700 px-8 py-2 rounded-xl shadow-lg text-white text-3xl font-bold tracking-widest animate-slide-down">
-          SanaKishan
+    <div className="min-h-screen bg-[#eef3ec]">
+      <div className="h-4 w-full bg-[#1f5f3b]" />
+
+      <div className="mx-auto flex min-h-[calc(100vh-1rem)] max-w-6xl items-center justify-center px-6 py-10">
+        <div className="grid w-full max-w-5xl overflow-hidden border border-[#cfd8cb] bg-white shadow-[0_18px_45px_rgba(31,95,59,0.12)] lg:grid-cols-[1.1fr_0.9fr]">
+          <section className="border-b border-[#dbe4d7] bg-[#f6faf4] px-8 py-10 lg:border-b-0 lg:border-r">
+            <div className="inline-flex items-center gap-2 border-l-4 border-[#1f5f3b] bg-[#e8f1e6] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#1f5f3b]">
+              <ShieldCheck className="h-4 w-4" />
+              Authorized Access
+            </div>
+
+            <div className="mt-8 flex items-center gap-4">
+              <div className="border border-[#d5dfd1] bg-white p-3 shadow-sm">
+                <img
+                  src="/logo.jpg"
+                  alt="Sana Kishan Logo"
+                  className="h-20 w-20 object-contain"
+                />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-[#173b23]">
+                  महिला सानाकिशन
+                </h1>
+                <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                  लक्ष्मीनिया गाउँपालिका
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-10 space-y-5">
+              <div className="border-l-4 border-[#1f5f3b] bg-white px-5 py-4 shadow-sm">
+                <h2 className="text-lg font-semibold text-[#173b23]">Dashboard Login</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Use your assigned admin credentials to access products, bookings,
+                  members, support, and category management.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="border border-[#dbe4d7] bg-white px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                    Access Area
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Secure administrative dashboard for official operational use.
+                  </p>
+                </div>
+                <div className="border border-[#dbe4d7] bg-white px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">
+                    Sign-In Note
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Only approved users should access and update dashboard records.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="px-8 py-10 lg:px-10">
+            <div className="mx-auto w-full max-w-md">
+              <div className="flex items-center gap-3">
+                <div className="border border-[#d5dfd1] bg-[#f6faf4] p-2.5 text-[#1f5f3b]">
+                  <LockKeyhole className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-[#173b23]">Sign In</h2>
+                  <p className="text-sm text-slate-600">Enter your login details below.</p>
+                </div>
+              </div>
+
+              {err && (
+                <div className="mt-6 border border-[#dcb7b7] bg-[#fbf0f0] px-4 py-3 text-sm text-[#8b2f2f]">
+                  {err}
+                </div>
+              )}
+
+              <form onSubmit={submit} className="mt-8 space-y-5">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#234a2f]">
+                    Email
+                  </label>
+                  <input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className="w-full border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-3 text-gray-800 outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#234a2f]">
+                    Password
+                  </label>
+                  <input
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    type="password"
+                    className="w-full border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-3 text-gray-800 outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full border border-[#184d30] bg-[#1f5f3b] px-4 py-3 font-semibold text-white transition hover:bg-[#184d30] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {submitting ? "Signing In..." : "Login"}
+                </button>
+              </form>
+
+              <div className="mt-8 border-t border-[#e1e7de] pt-4 text-xs leading-5 text-slate-500">
+                Protected access for authorized dashboard users only.
+              </div>
+            </div>
+          </section>
         </div>
-
-        <h2 className="text-2xl font-bold mb-6 text-green-800 text-center mt-12">
-          Admin Login
-        </h2>
-
-        {err && (
-          <div className="mb-4 text-red-200 bg-red-800/50 p-3 rounded-md text-sm animate-pulse">
-            {err}
-          </div>
-        )}
-
-        <form onSubmit={submit} className="space-y-5">
-          <div className="relative">
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full p-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-300 hover:border-green-400 text-gray-800 placeholder-gray-400 bg-green-50"
-            />
-            <label className="absolute -top-2 left-3 bg-green-50 px-1 text-xs font-medium text-green-700">
-              Email
-            </label>
-          </div>
-          <div className="relative">
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              type="password"
-              className="w-full p-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-300 hover:border-green-400 text-gray-800 placeholder-gray-400 bg-green-50"
-            />
-            <label className="absolute -top-2 left-3 bg-green-50 px-1 text-xs font-medium text-green-700">
-              Password
-            </label>
-          </div>
-          
-          {/* Pressable Login Button */}
-          <button
-            type="submit"
-            className={`w-full bg-green-700 text-white py-3 rounded-lg font-semibold 
-                        transition-transform duration-150 shadow-md 
-                        ${pressing ? "scale-90 bg-green-800 shadow-inner" : "scale-100"}`}
-          >
-            Login
-          </button>
-        </form>
       </div>
     </div>
   );

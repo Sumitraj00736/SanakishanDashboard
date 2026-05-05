@@ -111,20 +111,28 @@ export default function Categories() {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Categories</h1>
+      <div className="border border-[#d8e3d4] bg-white shadow-sm">
+        <div className="border-b border-[#dfe8db] bg-[#f6faf4] px-6 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2f6942]">
+            Category Management
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-[#173b23]">Categories</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Manage category names used across the dashboard product listings.
+          </p>
+        </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
           <input
             type="text"
-            placeholder="Search Category"
+            placeholder="Search category"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border p-2 rounded shadow-sm"
+            className="w-full max-w-sm border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
           />
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+            className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#184d30]"
           >
             Add Category
           </button>
@@ -132,15 +140,14 @@ export default function Categories() {
       </div>
 
       {error && (
-        <div className="text-red-600 bg-red-100 p-4 rounded-lg mb-6">
+        <div className="mt-6 border border-[#dcb7b7] bg-[#fbf0f0] p-4 text-[#8b2f2f]">
           {error}
         </div>
       )}
 
-      {/* TABLE */}
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="mt-6 overflow-hidden border border-[#d8e3d4] bg-white shadow-sm">
         <table className="w-full">
-          <thead className="bg-gray-50 text-left text-gray-600">
+          <thead className="bg-[#f6faf4] text-left text-[#385241]">
             <tr>
               <th className="p-4 font-semibold">Name</th>
               <th className="p-4 font-semibold">Actions</th>
@@ -152,19 +159,19 @@ export default function Categories() {
               filteredCategories.map((c) => (
                 <tr
                   key={c._id}
-                  className="border-t hover:bg-gray-50 transition"
+                  className="border-t border-[#edf2ea] transition hover:bg-[#fafcf9]"
                 >
-                  <td className="p-4">{c.name}</td>
+                  <td className="p-4 font-medium text-slate-800">{c.name}</td>
                   <td className="p-4 space-x-3">
                     <button
                       onClick={() => openEdit(c)}
-                      className="text-blue-600 hover:text-blue-800 font-medium"
+                      className="font-medium text-[#2f6942] hover:text-[#1f5f3b]"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(c._id)}
-                      className="text-red-600 hover:text-red-800 font-medium"
+                      className="font-medium text-[#a33636] hover:text-[#8f2f2f]"
                     >
                       Delete
                     </button>
@@ -184,13 +191,13 @@ export default function Categories() {
 
       {/* ADD CATEGORY MODAL */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 w-[400px] rounded-xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Add New Category</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[400px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Add New Category</h2>
 
             <div className="flex flex-col gap-4">
               <div>
-                <label className="mb-1 font-medium">Category Name</label>
+                <label className="mb-1 block font-medium text-[#234a2f]">Category Name</label>
                 <input
                   type="text"
                   placeholder="Enter Category Name"
@@ -198,7 +205,7 @@ export default function Categories() {
                   onChange={(e) =>
                     setNewCategory({ ...newCategory, name: e.target.value })
                   }
-                  className="border p-2 rounded w-full"
+                  className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
             </div>
@@ -206,13 +213,13 @@ export default function Categories() {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
               >
                 Close
               </button>
               <button
                 onClick={handleCreate}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Add Category
               </button>
@@ -223,20 +230,20 @@ export default function Categories() {
 
       {/* EDIT CATEGORY MODAL */}
       {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 w-[400px] rounded-xl shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Edit Category</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[400px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Edit Category</h2>
 
             <div className="flex flex-col gap-4">
               <div>
-                <label className="mb-1 font-medium">Category Name</label>
+                <label className="mb-1 block font-medium text-[#234a2f]">Category Name</label>
                 <input
                   type="text"
                   value={editCategory.name}
                   onChange={(e) =>
                     setEditCategory({ ...editCategory, name: e.target.value })
                   }
-                  className="border p-2 rounded w-full"
+                  className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
                 />
               </div>
             </div>
@@ -244,13 +251,13 @@ export default function Categories() {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdate}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Update
               </button>

@@ -23,6 +23,12 @@ export default function Members() {
     discountPercent: 0,
   });
 
+  const getStatusClasses = (status) => {
+    if (status === "active") return "bg-[#eaf4e7] text-[#1f5f3b]";
+    if (status === "suspended") return "bg-[#fff3d9] text-[#9a6b00]";
+    return "bg-[#fbebeb] text-[#8f2f2f]";
+  };
+
   // Load members
   const load = async () => {
     const m = await fetchMembers();
@@ -104,31 +110,38 @@ export default function Members() {
 
   return (
     <>
-      <div className="flex justify-between mb-6 items-center">
-        <h1 className="text-3xl font-semibold">Members</h1>
+      <div className="border border-[#d8e3d4] bg-white shadow-sm">
+        <div className="border-b border-[#dfe8db] bg-[#f6faf4] px-6 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2f6942]">
+            Member Records
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-[#173b23]">Members</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Search, add, and maintain member details and discount status.
+          </p>
+        </div>
 
-        <div className="flex gap-3">
-          {/* 🔍 SEARCH BAR */}
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
           <input
             type="text"
-            placeholder="Search by ID, Name, Phone, Email"
+            placeholder="Search by ID, name, phone, or email"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border rounded px-3 py-2 w-80 shadow-sm"
+            className="w-full max-w-md border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
           />
 
           <button
             onClick={openCreateModal}
-            className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700"
+            className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#184d30]"
           >
-            + Add Member
+            Add Member
           </button>
         </div>
       </div>
 
-      <div className="bg-white shadow rounded overflow-hidden">
+      <div className="mt-6 overflow-hidden border border-[#d8e3d4] bg-white shadow-sm">
         <table className="w-full">
-          <thead className="bg-gray-100">
+          <thead className="bg-[#f6faf4] text-[#385241]">
             <tr>
               <th className="p-3 text-left">Member ID</th>
               <th>Name</th>
@@ -143,20 +156,14 @@ export default function Members() {
 
           <tbody>
             {filtered.map((m) => (
-              <tr key={m._id} className="border-t hover:bg-gray-50">
+              <tr key={m._id} className="border-t border-[#edf2ea] hover:bg-[#fafcf9]">
                 <td className="p-3">{m.memberId}</td>
                 <td>{m.name}</td>
                 <td>{m.phone}</td>
                 <td>{m.email}</td>
                 <td>
                   <span
-                    className={`px-2 py-1 rounded text-white ${
-                      m.status === "active"
-                        ? "bg-green-600"
-                        : m.status === "suspended"
-                        ? "bg-yellow-600"
-                        : "bg-red-600"
-                    }`}
+                    className={`px-2 py-1 text-xs font-semibold ${getStatusClasses(m.status)}`}
                   >
                     {m.status}
                   </span>
@@ -167,7 +174,7 @@ export default function Members() {
                 <td className="p-3 text-center">
                   <button
                     onClick={() => openEditModal(m)}
-                    className="text-blue-600 font-semibold mr-4"
+                    className="mr-4 font-semibold text-[#2f6942]"
                   >
                     Edit
                   </button>
@@ -184,7 +191,7 @@ export default function Members() {
                         }
                       }
                     }}
-                    className="text-red-600 font-semibold"
+                    className="font-semibold text-[#a33636]"
                   >
                     Delete
                   </button>
@@ -205,9 +212,9 @@ export default function Members() {
 
       {/* ====== MODAL (same as before) ====== */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-[420px]">
-            <h2 className="text-xl font-semibold mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[420px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-semibold text-[#173b23]">
               {editingMember ? "Edit Member" : "Add Member"}
             </h2>
 
@@ -218,7 +225,7 @@ export default function Members() {
                 placeholder="Member ID"
                 value={form.memberId}
                 onChange={(e) => setForm({ ...form, memberId: e.target.value })}
-                className="w-full border p-2 rounded"
+                className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               />
 
               <input
@@ -226,7 +233,7 @@ export default function Members() {
                 placeholder="Name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border p-2 rounded"
+                className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               />
 
               <input
@@ -234,7 +241,7 @@ export default function Members() {
                 placeholder="Phone"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full border p-2 rounded"
+                className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               />
 
               <input
@@ -242,13 +249,13 @@ export default function Members() {
                 placeholder="Email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full border p-2 rounded"
+                className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               />
 
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full border p-2 rounded"
+                className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               >
                 <option value="active">Active</option>
                 <option value="suspended">Suspended</option>
@@ -261,7 +268,7 @@ export default function Members() {
                 onChange={(e) =>
                   setForm({ ...form, validUntil: e.target.value })
                 }
-                className="w-full border p-2 rounded"
+                className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               />
 
               <input
@@ -271,20 +278,20 @@ export default function Members() {
                 onChange={(e) =>
                   setForm({ ...form, discountPercent: e.target.value })
                 }
-                className="w-full border p-2 rounded"
+                className="w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
               />
 
               <div className="flex justify-end gap-3 mt-4">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                  className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
                 >
                   Cancel
                 </button>
 
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                  className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
                 >
                   Save
                 </button>
