@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Bell, PanelLeftClose, PanelLeftOpen, LogOut, ShieldCheck } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance";
@@ -46,10 +46,27 @@ export default function Navbar({ sidebarCollapsed = false, onToggleSidebar }) {
   } = useContext(AppContext);
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const notificationRef = useRef(null);
 
   React.useEffect(() => {
     fetchAdminNotifications().catch(() => {});
   }, [fetchAdminNotifications]);
+
+  React.useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!notificationRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [open]);
 
   const latest = useMemo(() => notifications.slice(0, 15), [notifications]);
   const pageMeta = PAGE_META[location.pathname] || PAGE_META["/"];
@@ -92,10 +109,14 @@ export default function Navbar({ sidebarCollapsed = false, onToggleSidebar }) {
               <p className="text-xs text-slate-500">Administrative access active</p>
             </div>
 
-            <div className="relative">
+            <div className="relative" ref={notificationRef}>
               <button
                 onClick={() => setOpen((v) => !v)}
-                className="relative border border-[#cfd8cb] bg-white p-3 text-[#234a2f] transition hover:bg-[#f4f8f2]"
+                className={`relative border p-3 text-[#234a2f] transition ${
+                  open
+                    ? "border-[#2f6942] bg-[#eef5ee]"
+                    : "border-[#cfd8cb] bg-white hover:bg-[#f4f8f2]"
+                }`}
                 aria-label="Toggle notifications"
               >
                 <Bell className="h-5 w-5" />
