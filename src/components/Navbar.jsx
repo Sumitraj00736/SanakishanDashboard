@@ -34,10 +34,9 @@ const PAGE_META = {
   },
 };
 
-export default function Navbar({ sidebarCollapsed = false, onToggleSidebar }) {
+export default function Navbar({ sidebarCollapsed = false, onToggleSidebar, onRequestLogout }) {
   const {
     admin,
-    logout,
     notifications,
     unreadNotifications,
     fetchAdminNotifications,
@@ -176,7 +175,7 @@ export default function Navbar({ sidebarCollapsed = false, onToggleSidebar }) {
             </div>
 
             <button
-              onClick={logout}
+              onClick={onRequestLogout}
               className="inline-flex items-center gap-2 border border-[#8f2f2f] bg-[#a33636] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#912d2d]"
             >
               <LogOut className="h-4 w-4" />

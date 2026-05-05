@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import {
   CalendarDays,
@@ -11,11 +11,8 @@ import {
   Package2,
   Users,
 } from "lucide-react";
-import { AppContext } from "../context/AppContextInstance.js";
 
-export default function Sidebar({ collapsed = false, onToggle }) {
-  const { logout } = useContext(AppContext);
-
+export default function Sidebar({ collapsed = false, onToggle, onRequestLogout }) {
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard },
     { to: "/products", label: "Products", icon: Package2 },
@@ -85,7 +82,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           </div>
         )}
         <button
-          onClick={logout}
+          onClick={onRequestLogout}
           className={`flex w-full items-center border border-[#b14545] bg-[#a33636] py-3 text-left transition-all duration-200 hover:bg-[#912d2d] ${
             collapsed ? "justify-center px-2" : "gap-3 px-4"
           }`}
