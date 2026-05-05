@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 
 export default function Categories() {
@@ -193,7 +194,16 @@ export default function Categories() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[400px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Add New Category</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#173b23]">Add New Category</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] p-2 text-slate-600 hover:bg-[#e8eee6]"
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
             <div className="flex flex-col gap-4">
               <div>
@@ -232,7 +242,16 @@ export default function Categories() {
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[400px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Edit Category</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#173b23]">Edit Category</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] p-2 text-slate-600 hover:bg-[#e8eee6]"
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
             <div className="flex flex-col gap-4">
               <div>

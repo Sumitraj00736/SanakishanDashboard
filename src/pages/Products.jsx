@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
@@ -327,7 +328,16 @@ export default function Products() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="max-h-[90vh] w-[500px] overflow-y-auto border border-[#d8e3d4] bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Add New Product</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#173b23]">Add New Product</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] p-2 text-slate-600 hover:bg-[#e8eee6]"
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
             <div className="grid gap-4">
               <div className="flex flex-col">
@@ -489,7 +499,16 @@ export default function Products() {
       {showEditModal && editingId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-[#d8e3d4] bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Edit Product</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#173b23]">Edit Product</h2>
+              <button
+                onClick={handleCloseEditModal}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] p-2 text-slate-600 hover:bg-[#e8eee6]"
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
             <div className="grid gap-4">
               <div className="flex flex-col">

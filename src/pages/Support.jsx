@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
@@ -180,7 +181,16 @@ export default function Support() {
       {showUpdateModal && selectedTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[500px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Update Ticket</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#173b23]">Update Ticket</h2>
+              <button
+                onClick={() => setShowUpdateModal(false)}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] p-2 text-slate-600 hover:bg-[#e8eee6]"
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
             <label className="block text-sm mb-1">Status</label>
             <select
@@ -225,7 +235,16 @@ export default function Support() {
       {showDetails && selectedTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[500px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-[#173b23]">Ticket Details</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#173b23]">Ticket Details</h2>
+              <button
+                onClick={closeDetails}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] p-2 text-slate-600 hover:bg-[#e8eee6]"
+                aria-label="Close modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
             <div className="space-y-2 text-sm">
               <p>
