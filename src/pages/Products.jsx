@@ -3,6 +3,10 @@ import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
+function formatCurrency(value) {
+  return `रु ${Number(value || 0).toLocaleString()}`;
+}
+
 export default function Products() {
   const {
     productsLoading,
@@ -293,9 +297,9 @@ export default function Products() {
                   </td>
                   <td className="p-4">{p.totalUnits}</td>
                   <td className="p-4">{p.reservedUnits}</td>
-                  <td className="p-4">NPR {p.basePrice.toLocaleString()}</td>
+                  <td className="p-4">{formatCurrency(p.basePrice)}</td>
                   <td className="p-4">
-                    {p.memberPrice ? `NPR ${p.memberPrice.toLocaleString()}` : "-"}
+                    {p.memberPrice ? formatCurrency(p.memberPrice) : "-"}
                   </td>
                   <td className="p-4 space-x-2">
                     <button

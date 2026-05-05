@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
-  CircleDollarSign,
   Filter,
   Download,
   PackageCheck,
@@ -31,6 +30,10 @@ import { AppContext } from "../context/AppContextInstance.js";
 
 function todayInputValue() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function formatCurrency(value) {
+  return `रु ${Number(value || 0).toLocaleString()}`;
 }
 
 export default function Dashboard() {
@@ -134,7 +137,7 @@ export default function Dashboard() {
           </div>
           <div className="border-l-4 border-[#366d49] bg-[#f8fbf7] px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2f6942]">Sales Snapshot</p>
-            <p className="mt-2 text-sm font-semibold text-[#173b23]">NPR {totalSales.toLocaleString()}</p>
+            <p className="mt-2 text-sm font-semibold text-[#173b23]">{formatCurrency(totalSales)}</p>
             <p className="mt-1 text-xs text-slate-500">Based on the selected dashboard filters.</p>
           </div>
           <div className="border-l-4 border-[#4f7f5e] bg-[#f8fbf7] px-4 py-3">
@@ -186,7 +189,7 @@ export default function Dashboard() {
       {error && <div className="border border-[#dcb7b7] bg-[#fbf0f0] p-3 text-sm text-[#8b2f2f]">{error}</div>}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Total Sales" value={`NPR ${totalSales.toLocaleString()}`} note="Overall sales for selected records" bgColor="bg-[#1f5f3b]" icon={<CircleDollarSign />} />
+        <StatCard title="Total Sales" value={formatCurrency(totalSales)} note="Overall sales for selected records" bgColor="bg-[#1f5f3b]" icon={<span className="text-xl font-bold">रु</span>} />
         <StatCard title="Total Bookings" value={summary.totalBookings || 0} note="All bookings within current filters" bgColor="bg-[#295f42]" icon={<Ticket />} />
         <StatCard title="Confirmed" value={summary.confirmedBookings || 0} note="Verified or completed reservations" bgColor="bg-[#3a714f]" icon={<PackageCheck />} />
         <StatCard title="Cancelled" value={summary.cancelledBookings || 0} note="Cancelled records in selected period" bgColor="bg-[#8f3838]" icon={<XCircle />} />

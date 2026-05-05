@@ -3,6 +3,10 @@ import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
+function formatCurrency(value) {
+  return `रु ${Number(value || 0).toLocaleString()}`;
+}
+
 export default function Bookings() {
   const { fetchBookings, cancelBooking, verifyPayment, fetchProducts, notifySuccess, notifyError } =
     useContext(AppContext);
@@ -219,8 +223,8 @@ export default function Bookings() {
                   <td className="p-3 text-center">{b.quantity}</td>
 
                   <td className="p-3 text-xs">
-                    <div>Price/hr: {b.pricePerHour}</div>
-                    <div>Total: {b.totalRent}</div>
+                    <div>Price/hr: {formatCurrency(b.pricePerHour)}</div>
+                    <div>Total: {formatCurrency(b.totalRent)}</div>
                   </td>
 
                   <td className="p-3">{toNPT(b.startDateTime)}</td>
@@ -402,7 +406,7 @@ export default function Bookings() {
               </p>
 
               <p>
-                <b>Total:</b> {selectedBooking.totalRent || selectedBooking.totalAmount}
+                <b>Total:</b> {formatCurrency(selectedBooking.totalRent || selectedBooking.totalAmount)}
               </p>
 
               {/* CANCELLATION REASON */}
