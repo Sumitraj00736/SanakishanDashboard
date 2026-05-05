@@ -3,7 +3,7 @@ import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Bookings() {
-  const { fetchBookings, cancelBooking, verifyPayment, fetchProducts } =
+  const { fetchBookings, cancelBooking, verifyPayment, fetchProducts, notifySuccess, notifyError } =
     useContext(AppContext);
 
   const [bookings, setBookings] = useState(null);
@@ -67,24 +67,29 @@ export default function Bookings() {
   const confirmCancel = async () => {
     if (!cancelReason.trim()) return;
 
-    await cancelBooking(selectedBooking._id, cancelReason);
+    try {
+      await cancelBooking(selectedBooking._id, cancelReason);
 
-    // Optimistic UI update
-    setBookings((prev) =>
-      prev.map((b) =>
-        b._id === selectedBooking._id
-          ? {
-              ...b,
-              status: "cancelled",
-              adminNotes: cancelReason,
-            }
-          : b,
-      ),
-    );
+      // Optimistic UI update
+      setBookings((prev) =>
+        prev.map((b) =>
+          b._id === selectedBooking._id
+            ? {
+                ...b,
+                status: "cancelled",
+                adminNotes: cancelReason,
+              }
+            : b,
+        ),
+      );
 
-    setShowCancelModal(false);
-    setSelectedBooking(null);
-    setCancelReason("");
+      notifySuccess("Booking cancelled successfully");
+      setShowCancelModal(false);
+      setSelectedBooking(null);
+      setCancelReason("");
+    } catch (err) {
+      notifyError(err.message || "Failed to cancel booking");
+    }
   };
 
   /* ---------------- VERIFY ---------------- */
@@ -98,13 +103,18 @@ export default function Bookings() {
   const confirmVerify = async () => {
     if (!verifyAmount.trim()) return;
 
-    await verifyPayment(selectedBooking._id, {
-      method: verifyMethod,
-      amount: verifyAmount,
-    });
+    try {
+      await verifyPayment(selectedBooking._id, {
+        method: verifyMethod,
+        amount: verifyAmount,
+      });
 
-    setShowVerifyModal(false);
-    loadBookings();
+      notifySuccess("Payment verified successfully");
+      setShowVerifyModal(false);
+      loadBookings();
+    } catch (err) {
+      notifyError(err.message || "Failed to verify payment");
+    }
   };
 
   /* ---------------- DETAILS ---------------- */

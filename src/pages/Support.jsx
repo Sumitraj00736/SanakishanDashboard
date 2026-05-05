@@ -3,7 +3,7 @@ import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Support() {
-  const { fetchSupport, updateTicket } = useContext(AppContext);
+  const { fetchSupport, updateTicket, notifySuccess, notifyError } = useContext(AppContext);
 
   const [tickets, setTickets] = useState(null);
   const [search, setSearch] = useState("");
@@ -41,11 +41,15 @@ export default function Support() {
 
   const confirmUpdate = async () => {
     if (!selectedTicket) return;
-    console.log("clicked!!!!!!!!!!");
-    await updateTicket(selectedTicket._id, { status, adminMessage });
-    setShowUpdateModal(false);
-    setSelectedTicket(null);
-    loadTickets();
+    try {
+      await updateTicket(selectedTicket._id, { status, adminMessage });
+      notifySuccess("Support ticket updated successfully");
+      setShowUpdateModal(false);
+      setSelectedTicket(null);
+      loadTickets();
+    } catch (err) {
+      notifyError(err.message || "Failed to update support ticket");
+    }
   };
 
   const openDetails = (ticket) => {

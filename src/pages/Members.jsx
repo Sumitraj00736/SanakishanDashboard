@@ -3,7 +3,7 @@ import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
 export default function Members() {
-  const { fetchMembers, createMember, updateMember, deleteMember } =
+  const { fetchMembers, createMember, updateMember, deleteMember, notifySuccess, notifyError } =
     useContext(AppContext);
 
   const [members, setMembers] = useState(null);
@@ -80,13 +80,19 @@ export default function Members() {
   };
 
   const handleSave = async () => {
-    if (editingMember) {
-      await updateMember(editingMember, form);
-    } else {
-      await createMember(form);
+    try {
+      if (editingMember) {
+        await updateMember(editingMember, form);
+        notifySuccess("Member updated successfully");
+      } else {
+        await createMember(form);
+        notifySuccess("Member added successfully");
+      }
+      setShowModal(false);
+      load();
+    } catch (err) {
+      notifyError(err.message || "Failed to save member");
     }
-    setShowModal(false);
-    load();
   };
 
   if (!members)
@@ -169,8 +175,13 @@ export default function Members() {
                   <button
                     onClick={async () => {
                       if (confirm("Delete this member?")) {
-                        await deleteMember(m._id);
-                        load();
+                        try {
+                          await deleteMember(m._id);
+                          notifySuccess("Member deleted successfully");
+                          load();
+                        } catch (err) {
+                          notifyError(err.message || "Failed to delete member");
+                        }
                       }
                     }}
                     className="text-red-600 font-semibold"

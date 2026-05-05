@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useContext } from "react";
-import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
 
@@ -12,6 +10,8 @@ export default function Products() {
     deleteProduct,
     createProduct,
     updateProduct,
+    notifySuccess,
+    notifyError,
   } = useContext(AppContext);
 
   const [listProducts, setListProducts] = useState([]);
@@ -22,6 +22,7 @@ export default function Products() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -36,6 +37,20 @@ export default function Products() {
 
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({});
+
+  const getImageSources = (images) => {
+    if (!Array.isArray(images)) return [];
+
+    return images
+      .map((image) => {
+        if (typeof image === "string") return image;
+        if (image?.url) return image.url;
+        if (image?.secure_url) return image.secure_url;
+        if (image?.path) return image.path;
+        return null;
+      })
+      .filter(Boolean);
+  };
 
   // Load products
   const loadProducts = async () => {
@@ -84,9 +99,11 @@ export default function Products() {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
       await deleteProduct(id);
+      notifySuccess("Product deleted successfully");
       loadProducts();
     } catch (err) {
       setError(err.message || "Failed to delete product");
+      notifyError(err.message || "Failed to delete product");
     }
   };
 
@@ -101,29 +118,58 @@ export default function Products() {
       basePrice: product.basePrice,
       memberPrice: product.memberPrice || 0,
       categoryId: product.categoryId || "", // <-- edit uses categoryId
+      images: [],
+      currentImages: getImageSources(product.images),
     });
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingId(null);
+    setEditValues({});
   };
 
   // Save edited product
   const handleUpdate = async (id) => {
     if (!editValues.categoryId) {
-      toast.error("Category is required");
+      notifyError("Category is required");
       return;
     }
     try {
-      await updateProduct(id, editValues);
-      setEditingId(null);
-      setEditValues({});
+      const hasNewImages = Array.isArray(editValues.images) && editValues.images.length > 0;
+      const payload = hasNewImages ? new FormData() : { ...editValues };
+
+      if (hasNewImages) {
+        payload.append("name", editValues.name);
+        payload.append("description", editValues.description || "");
+        payload.append("totalUnits", editValues.totalUnits);
+        payload.append("reservedUnits", editValues.reservedUnits);
+        payload.append("basePrice", editValues.basePrice);
+        payload.append("memberPrice", editValues.memberPrice || 0);
+        payload.append("categoryId", editValues.categoryId);
+        editValues.images.forEach((file) => {
+          payload.append("images", file);
+        });
+      } else {
+        delete payload.images;
+        delete payload.currentImages;
+      }
+
+      await updateProduct(id, payload);
+      notifySuccess("Product updated successfully");
+      handleCloseEditModal();
       loadProducts();
     } catch (err) {
       setError(err.message || "Failed to update product");
+      notifyError(err.message || "Failed to update product");
     }
   };
 
   // Create new product
   const handleCreate = async () => {
     if (!newProduct.name.trim() || !newProduct.categoryId) {
-      toast.error("Product name and category are required");
+      notifyError("Product name and category are required");
       return;
     }
 
@@ -145,6 +191,7 @@ export default function Products() {
       }
 
       await createProduct(formData);
+      notifySuccess("Product added successfully");
 
       // reset form
       setNewProduct({
@@ -161,6 +208,7 @@ export default function Products() {
       loadProducts();
     } catch (err) {
       setError(err.message || "Failed to create product");
+      notifyError(err.message || "Failed to create product");
     }
   };
 
@@ -200,6 +248,7 @@ export default function Products() {
         <table className="w-full">
           <thead className="bg-gray-50 text-left text-gray-600">
             <tr>
+              <th className="p-4 font-semibold">Image</th>
               <th className="p-4 font-semibold">Name</th>
               <th className="p-4 font-semibold">Description</th>
               <th className="p-4 font-semibold">Category</th>
@@ -214,140 +263,52 @@ export default function Products() {
           <tbody>
             {filteredProducts.length > 0 ? (
               filteredProducts.map((p) => (
-                <tr
-                  key={p._id}
-                  className="border-t hover:bg-gray-50 transition"
-                >
-                  {editingId === p._id ? (
-                    <>
-                      <td className="p-4">
-                        <input
-                          type="text"
-                          value={editValues.name}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, name: e.target.value })
-                          }
-                          className="border p-2 rounded w-full"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <textarea
-                          value={editValues.description}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, description: e.target.value })
-                          }
-                          className="border p-2 rounded w-full min-h-[80px]"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <select
-                          value={editValues.categoryId}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, categoryId: e.target.value })
-                          }
-                          className="border p-2 rounded w-full"
-                        >
-                          <option value="">Select Category</option>
-                          {categories.map((cat) => (
-                            <option key={cat._id} value={cat._id}>
-                              {cat.name}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="p-4">
-                        <input
-                          type="number"
-                          value={editValues.totalUnits}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, totalUnits: +e.target.value })
-                          }
-                          className="border p-2 rounded w-full"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <input
-                          type="number"
-                          value={editValues.reservedUnits}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, reservedUnits: +e.target.value })
-                          }
-                          className="border p-2 rounded w-full"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <input
-                          type="number"
-                          value={editValues.basePrice}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, basePrice: +e.target.value })
-                          }
-                          className="border p-2 rounded w-full"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <input
-                          type="number"
-                          value={editValues.memberPrice}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, memberPrice: +e.target.value })
-                          }
-                          className="border p-2 rounded w-full"
-                        />
-                      </td>
-                      <td className="p-4 space-x-2">
-                        <button
-                          onClick={() => handleUpdate(p._id)}
-                          className="text-green-600 font-medium"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingId(null)}
-                          className="text-gray-600 font-medium"
-                        >
-                          Cancel
-                        </button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="p-4">{p.name}</td>
-                      <td className="p-4 max-w-[250px] truncate">
-                        {p.description || "-"}
-                      </td>
-                      <td className="p-4">
-                        {categories.find((cat) => cat._id === p.categoryId)?.name || "-"}
-                      </td>
-                      <td className="p-4">{p.totalUnits}</td>
-                      <td className="p-4">{p.reservedUnits}</td>
-                      <td className="p-4">NPR {p.basePrice.toLocaleString()}</td>
-                      <td className="p-4">
-                        {p.memberPrice
-                          ? `NPR ${p.memberPrice.toLocaleString()}`
-                          : "-"}
-                      </td>
-                      <td className="p-4 space-x-2">
-                        <button
-                          onClick={() => handleEdit(p)}
-                          className="text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          Update
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p._id)}
-                          className="text-red-600 hover:text-red-800 font-medium"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </>
-                  )}
+                <tr key={p._id} className="border-t hover:bg-gray-50 transition">
+                  <td className="p-4">
+                    {getImageSources(p.images)[0] ? (
+                      <img
+                        src={getImageSources(p.images)[0]}
+                        alt={p.name}
+                        className="w-14 h-14 rounded-lg border object-cover"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-lg border bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+                        No image
+                      </div>
+                    )}
+                  </td>
+                  <td className="p-4 font-medium text-gray-800">{p.name}</td>
+                  <td className="p-4 max-w-[250px] truncate">
+                    {p.description || "-"}
+                  </td>
+                  <td className="p-4">
+                    {categories.find((cat) => cat._id === p.categoryId)?.name || "-"}
+                  </td>
+                  <td className="p-4">{p.totalUnits}</td>
+                  <td className="p-4">{p.reservedUnits}</td>
+                  <td className="p-4">NPR {p.basePrice.toLocaleString()}</td>
+                  <td className="p-4">
+                    {p.memberPrice ? `NPR ${p.memberPrice.toLocaleString()}` : "-"}
+                  </td>
+                  <td className="p-4 space-x-2">
+                    <button
+                      onClick={() => handleEdit(p)}
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Update
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p._id)}
+                      className="text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center p-4 text-gray-500">
+                <td colSpan="9" className="text-center p-4 text-gray-500">
                   No products found.
                 </td>
               </tr>
@@ -521,6 +482,173 @@ export default function Products() {
                 className="px-4 py-2 bg-green-600 text-white rounded-lg"
               >
                 Add Product
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && editingId && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 w-full max-w-2xl rounded-xl shadow-xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+
+            <div className="grid gap-4">
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Name</label>
+                <input
+                  type="text"
+                  value={editValues.name || ""}
+                  onChange={(e) =>
+                    setEditValues({ ...editValues, name: e.target.value })
+                  }
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Category</label>
+                <select
+                  value={editValues.categoryId || ""}
+                  onChange={(e) =>
+                    setEditValues({ ...editValues, categoryId: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="mb-1 font-medium">Description</label>
+                <textarea
+                  value={editValues.description || ""}
+                  onChange={(e) =>
+                    setEditValues({ ...editValues, description: e.target.value })
+                  }
+                  className="border p-2 rounded min-h-[100px]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium">Total Units</label>
+                  <input
+                    type="number"
+                    value={editValues.totalUnits ?? 0}
+                    onChange={(e) =>
+                      setEditValues({ ...editValues, totalUnits: +e.target.value })
+                    }
+                    className="border p-2 rounded"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium">Reserved Units</label>
+                  <input
+                    type="number"
+                    value={editValues.reservedUnits ?? 0}
+                    onChange={(e) =>
+                      setEditValues({ ...editValues, reservedUnits: +e.target.value })
+                    }
+                    className="border p-2 rounded"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium">Base Price</label>
+                  <input
+                    type="number"
+                    value={editValues.basePrice ?? 0}
+                    onChange={(e) =>
+                      setEditValues({ ...editValues, basePrice: +e.target.value })
+                    }
+                    className="border p-2 rounded"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="mb-1 font-medium">Member Price</label>
+                  <input
+                    type="number"
+                    value={editValues.memberPrice ?? 0}
+                    onChange={(e) =>
+                      setEditValues({ ...editValues, memberPrice: +e.target.value })
+                    }
+                    className="border p-2 rounded"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block font-medium">Current Images</label>
+                {Array.isArray(editValues.currentImages) &&
+                editValues.currentImages.length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {editValues.currentImages.map((src, idx) => (
+                      <img
+                        key={`${src}-${idx}`}
+                        src={src}
+                        alt={`current-product-image-${idx}`}
+                        className="w-24 h-24 rounded-lg border object-cover"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500">No images found for this product.</div>
+                )}
+              </div>
+
+              <div className="flex flex-col">
+                <label className="mb-2 block font-medium">Upload New Images</label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) =>
+                    setEditValues({
+                      ...editValues,
+                      images: Array.from(e.target.files || []),
+                    })
+                  }
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+
+              {Array.isArray(editValues.images) && editValues.images.length > 0 && (
+                <div>
+                  <label className="mb-2 block font-medium">Preview</label>
+                  <div className="flex flex-wrap gap-3">
+                    {editValues.images.map((file, idx) => (
+                      <img
+                        key={`${file.name}-${idx}`}
+                        src={URL.createObjectURL(file)}
+                        alt={`new-product-image-${idx}`}
+                        className="w-24 h-24 rounded-lg border object-cover"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={handleCloseEditModal}
+                className="px-4 py-2 bg-gray-300 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleUpdate(editingId)}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500"
+              >
+                Save Changes
               </button>
             </div>
           </div>

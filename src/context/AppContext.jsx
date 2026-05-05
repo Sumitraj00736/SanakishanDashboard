@@ -37,6 +37,21 @@ export function AppProvider({ children }) {
     }
   };
 
+  const notifySuccess = useCallback((message) => {
+    playNotificationSound();
+    toast.success(message);
+  }, []);
+
+  const notifyError = useCallback((message) => {
+    playNotificationSound();
+    toast.error(message);
+  }, []);
+
+  const notifyInfo = useCallback((message) => {
+    playNotificationSound();
+    toast.info(message);
+  }, []);
+
   const authClient = useMemo(() => {
     const instance = axios.create({ baseURL: BASE_URL });
     instance.interceptors.request.use((config) => {
@@ -88,20 +103,17 @@ export function AppProvider({ children }) {
     socketRef.current = socket;
 
     socket.on("booking:created", ({ booking }) => {
-      playNotificationSound();
-      toast.info(`New booking: ${booking?.userName || booking?._id || "Unknown"}`);
+      notifyInfo(`New booking: ${booking?.userName || booking?._id || "Unknown"}`);
       window.dispatchEvent(new CustomEvent("booking:created", { detail: booking }));
     });
 
     socket.on("booking:updated", ({ booking }) => {
-      playNotificationSound();
-      toast.info(`Booking updated: ${booking?.userName || booking?._id || "Unknown"}`);
+      notifyInfo(`Booking updated: ${booking?.userName || booking?._id || "Unknown"}`);
       window.dispatchEvent(new CustomEvent("booking:updated", { detail: booking }));
     });
 
     socket.on("admin:booking-notification", (payload) => {
-      playNotificationSound();
-      toast.info(payload?.message || "Booking notification");
+      notifyInfo(payload?.message || "Booking notification");
       if (payload?.notification) {
         setNotifications((prev) => [payload.notification, ...prev].slice(0, 100));
         setUnreadNotifications((prev) => prev + 1);
@@ -110,20 +122,17 @@ export function AppProvider({ children }) {
     });
 
     socket.on("support:created", ({ ticket }) => {
-      playNotificationSound();
-      toast.info(`New support ticket from ${ticket?.name || "user"}`);
+      notifyInfo(`New support ticket from ${ticket?.name || "user"}`);
       window.dispatchEvent(new CustomEvent("support:created", { detail: ticket }));
     });
 
     socket.on("support:updated", ({ ticket }) => {
-      playNotificationSound();
-      toast.success(`Support ticket ${ticket?._id || ""} updated`);
+      notifySuccess(`Support ticket ${ticket?._id || ""} updated`);
       window.dispatchEvent(new CustomEvent("support:updated", { detail: ticket }));
     });
 
     socket.on("admin:support-notification", (payload) => {
-      playNotificationSound();
-      toast.info(payload?.message || "Support notification");
+      notifyInfo(payload?.message || "Support notification");
       if (payload?.notification) {
         setNotifications((prev) => [payload.notification, ...prev].slice(0, 100));
         setUnreadNotifications((prev) => prev + 1);
@@ -135,7 +144,7 @@ export function AppProvider({ children }) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [token]);
+  }, [notifyInfo, notifySuccess, token]);
 
   const fetchAdminNotifications = useCallback(async (params = {}) => {
     const data = (await authClient.get("/admin/notifications", { params })).data;
@@ -165,7 +174,12 @@ export function AppProvider({ children }) {
         headers: { "Content-Type": "multipart/form-data" },
       })
     ).data;
-  const updateProduct = async (id, payload) => (await authClient.put(`/admin/products/${id}`, payload)).data;
+  const updateProduct = async (id, payload) =>
+    (
+      await authClient.put(`/admin/products/${id}`, payload, payload instanceof FormData
+        ? { headers: { "Content-Type": "multipart/form-data" } }
+        : undefined)
+    ).data;
   const deleteProduct = async (id) => (await authClient.delete(`/admin/products/${id}`)).data;
 
   const fetchMembers = async () => (await authClient.get("/admin/members")).data;
@@ -235,6 +249,9 @@ export function AppProvider({ children }) {
     downloadBookingReportCsv,
     notifications,
     unreadNotifications,
+    notifySuccess,
+    notifyError,
+    notifyInfo,
     fetchAdminNotifications,
     markAdminNotificationRead,
     markAllAdminNotificationsRead,

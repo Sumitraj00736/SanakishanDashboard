@@ -1,11 +1,10 @@
 import React, { useState, useContext } from "react";
-import { toast } from "react-toastify";
 import AdminLayout from "../layout/AdminLayout.jsx";
 import { AppContext } from "../context/AppContextInstance.js";
 import { useNavigate } from "react-router-dom";
 
 export default function AddProduct() {
-  const { createProduct } = useContext(AppContext);
+  const { createProduct, notifySuccess, notifyError } = useContext(AppContext);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -34,9 +33,10 @@ export default function AddProduct() {
         features: form.features ? form.features.split(",").map(s => s.trim()) : []
       };
       await createProduct(payload);
+      notifySuccess("Product added successfully");
       nav("/products");
     } catch (err) {
-      toast.error(err.message || "Failed");
+      notifyError(err.message || "Failed");
     } finally {
       setLoading(false);
     }

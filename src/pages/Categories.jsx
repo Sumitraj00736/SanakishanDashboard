@@ -1,8 +1,5 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useContext } from "react";
-import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContextInstance.js";
-import Loader from "../components/Loader.jsx";
 
 export default function Categories() {
   const {
@@ -10,11 +7,12 @@ export default function Categories() {
     createCategory,
     deleteCategory,
     updateCategory,
+    notifySuccess,
+    notifyError,
   } = useContext(AppContext);
 
   const [listCategories, setListCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,15 +29,12 @@ export default function Categories() {
   // Load categories
   const load = async () => {
     try {
-      setLoading(true);
       const data = await fetchCategories();
       const categories = Array.isArray(data) ? data : data.categories || [];
       setListCategories(categories);
       setFilteredCategories(categories);
-      setLoading(false);
     } catch (err) {
       setError(err.message || "Failed to load categories");
-      setLoading(false);
     }
   };
 
@@ -59,18 +54,20 @@ export default function Categories() {
   // Create new category
   const handleCreate = async () => {
     if (!newCategory.name.trim()) {
-      toast.error("Category name cannot be empty");
+      notifyError("Category name cannot be empty");
       return;
     }
 
     try {
       await createCategory(newCategory);
+      notifySuccess("Category added successfully");
 
       setNewCategory({ name: "" });
       setShowAddModal(false);
       load();
     } catch (err) {
       setError(err.message || "Failed to create category");
+      notifyError(err.message || "Failed to create category");
     }
   };
 
@@ -83,16 +80,18 @@ export default function Categories() {
   // Update category
   const handleUpdate = async () => {
     if (!editCategory.name.trim()) {
-      toast.error("Category name cannot be empty");
+      notifyError("Category name cannot be empty");
       return;
     }
 
     try {
       await updateCategory(editCategory._id, { name: editCategory.name });
+      notifySuccess("Category updated successfully");
       setShowEditModal(false);
       load();
     } catch (err) {
       setError(err.message || "Failed to update category");
+      notifyError(err.message || "Failed to update category");
     }
   };
 
@@ -102,9 +101,11 @@ export default function Categories() {
 
     try {
       await deleteCategory(id);
+      notifySuccess("Category deleted successfully");
       load();
     } catch (err) {
       setError(err.message || "Failed to delete category");
+      notifyError(err.message || "Failed to delete category");
     }
   };
 

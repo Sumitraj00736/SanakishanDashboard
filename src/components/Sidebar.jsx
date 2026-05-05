@@ -1,17 +1,26 @@
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
+import {
+  CalendarDays,
+  LayoutDashboard,
+  Layers3,
+  LifeBuoy,
+  LogOut,
+  Package2,
+  Users,
+} from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 
 export default function Sidebar() {
   const { logout } = useContext(AppContext);
 
   const links = [
-    { to: "/", label: "Dashboard" },
-    { to: "/products", label: "Products" },
-    { to: "/members", label: "Members" },
-    { to: "/bookings", label: "Bookings" },
-    { to: "/support", label: "Support" },
-    { to: "/categories", label: "Categories" },
+    { to: "/", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/products", label: "Products", icon: Package2 },
+    { to: "/members", label: "Members", icon: Users },
+    { to: "/bookings", label: "Bookings", icon: CalendarDays },
+    { to: "/support", label: "Support", icon: LifeBuoy },
+    { to: "/categories", label: "Categories", icon: Layers3 },
   ];
 
   return (
@@ -38,12 +47,13 @@ export default function Sidebar() {
             key={l.to}
             to={l.to}
             className={({ isActive }) =>
-              `mx-3 block px-4 py-3 rounded-lg transition-all duration-200
+              `mx-3 flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                hover:bg-green-700
                ${isActive ? "bg-green-900 font-semibold" : ""}`
             }
           >
-            {l.label}
+            <l.icon size={18} />
+            <span>{l.label}</span>
           </NavLink>
         ))}
       </nav>
@@ -52,10 +62,11 @@ export default function Sidebar() {
       <div className="p-6 border-t border-green-900">
         <button
           onClick={logout}
-          className="w-full px-4 py-2 rounded-lg text-left
+          className="w-full px-4 py-2 rounded-lg text-left flex items-center gap-3
                      hover:bg-red-600 transition-all duration-200"
         >
-          Logout
+          <LogOut size={18} />
+          <span>Logout</span>
         </button>
       </div>
     </aside>
