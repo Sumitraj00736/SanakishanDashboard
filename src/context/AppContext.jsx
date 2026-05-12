@@ -192,6 +192,10 @@ export function AppProvider({ children }) {
     (await authClient.post(`/admin/bookings/${id}/cancel`, { reason })).data;
   const verifyPayment = async (id, payload) =>
     (await authClient.post(`/admin/bookings/${id}/verify-payment`, payload)).data;
+  const deleteBooking = async (id, password) =>
+    (await authClient.delete(`/admin/bookings/${id}`, { data: { password } })).data;
+  const deleteBookings = async (ids, password) =>
+    (await authClient.delete("/admin/bookings", { data: { ids, password } })).data;
 
   const fetchCategories = async () => (await authClient.get("/categories")).data;
   const createCategory = async (payload) => (await authClient.post("/admin/categories", payload)).data;
@@ -200,6 +204,10 @@ export function AppProvider({ children }) {
 
   const fetchSupport = async () => (await authClient.get("/admin/support")).data;
   const updateTicket = async (id, payload) => (await authClient.put(`/admin/support/${id}`, payload)).data;
+  const deleteTicket = async (id, password) =>
+    (await authClient.delete(`/admin/support/${id}`, { data: { password } })).data;
+  const deleteTickets = async (ids, password) =>
+    (await authClient.delete("/admin/support", { data: { ids, password } })).data;
 
   const fetchAnalytics = async (params) => (await authClient.get("/admin/analytics/overview", { params })).data;
 
@@ -245,6 +253,10 @@ export function AppProvider({ children }) {
     deleteCategory,
     fetchSupport,
     updateTicket,
+    deleteBooking,
+    deleteBookings,
+    deleteTicket,
+    deleteTickets,
     fetchAnalytics,
     downloadBookingReportCsv,
     notifications,

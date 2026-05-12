@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Bell, PanelLeftClose, PanelLeftOpen, LogOut, ShieldCheck } from "lucide-react";
+import { Bell, PanelLeftClose, PanelLeftOpen, LogOut, ShieldCheck, X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance";
 
 const PAGE_META = {
@@ -45,6 +45,8 @@ export default function Navbar({ sidebarCollapsed = false, onToggleSidebar, onRe
   } = useContext(AppContext);
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const notificationRef = useRef(null);
 
   React.useEffect(() => {
@@ -71,9 +73,12 @@ export default function Navbar({ sidebarCollapsed = false, onToggleSidebar, onRe
   const pageMeta = PAGE_META[location.pathname] || PAGE_META["/"];
   const adminName = admin?.username || admin?.name || admin?.email || "Administrator";
 
-  const onMarkRead = async (id, read) => {
-    if (read) return;
-    await markAdminNotificationRead(id);
+  const onMarkRead = async (item) => {
+    setSelectedNotification(item);
+    setShowDetailModal(true);
+    if (!item.read) {
+      await markAdminNotificationRead(item._id);
+    }
   };
 
   return (
@@ -147,7 +152,7 @@ export default function Navbar({ sidebarCollapsed = false, onToggleSidebar, onRe
                       latest.map((item) => (
                         <button
                           key={item._id}
-                          onClick={() => onMarkRead(item._id, item.read)}
+                          onClick={() => onMarkRead(item)}
                           className={`w-full border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50 ${
                             item.read ? "opacity-70" : "bg-[#f1f7f1]"
                           }`}
@@ -184,6 +189,50 @@ export default function Navbar({ sidebarCollapsed = false, onToggleSidebar, onRe
           </div>
         </div>
       </div>
+
+      {/* NOTIFICATION DETAIL MODAL */}
+      {showDetailModal && selectedNotification && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md border border-[#cfd8cb] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#dfe8db] bg-[#f6faf4] px-5 py-4">
+              <h2 className="font-bold text-[#16371f]">Notification Detail</h2>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#eef5ee] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#1f5f3b]">
+                {selectedNotification.type || "System Alert"}
+              </div>
+              <h3 className="mt-4 text-xl font-bold text-slate-900">{selectedNotification.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">{selectedNotification.message}</p>
+              
+              <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-4 text-[11px] text-slate-400">
+                <span>Received on: {new Date(selectedNotification.createdAt).toLocaleString()}</span>
+                {selectedNotification.read && (
+                  <span className="flex items-center gap-1 text-[#2f6942]">
+                    <ShieldCheck className="h-3 w-3" />
+                    Read
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t border-[#dfe8db] bg-[#fbfdfb] px-5 py-4 flex justify-end">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="border border-[#cfd8cb] bg-white px-6 py-2 text-sm font-semibold text-slate-700 transition hover:bg-[#f4f8f2] hover:border-[#2f6942]"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

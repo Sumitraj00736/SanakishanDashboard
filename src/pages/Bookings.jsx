@@ -1,24 +1,32 @@
 import React, { useEffect, useState, useContext } from "react";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
+import Button from "../components/Button.jsx";
 
 function formatCurrency(value) {
   return `रु ${Number(value || 0).toLocaleString()}`;
 }
 
 export default function Bookings() {
-  const { fetchBookings, cancelBooking, verifyPayment, fetchProducts, notifySuccess, notifyError } =
+  const { fetchBookings, cancelBooking, verifyPayment, fetchProducts, notifySuccess, notifyError, deleteBooking, deleteBookings } =
     useContext(AppContext);
 
   const [bookings, setBookings] = useState(null);
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
 
+  // Selection & Delete states
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [isBulkDelete, setIsBulkDelete] = useState(false);
+
   // Modal states
   const [showDetails, setShowDetails] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
@@ -78,8 +86,8 @@ export default function Bookings() {
 
   const confirmCancel = async () => {
     if (!cancelReason.trim()) return;
-
     try {
+      setIsSubmitting(true);
       await cancelBooking(selectedBooking._id, cancelReason);
 
       // Optimistic UI update
@@ -101,6 +109,8 @@ export default function Bookings() {
       setCancelReason("");
     } catch (err) {
       notifyError(err.message || "Failed to cancel booking");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -114,8 +124,8 @@ export default function Bookings() {
 
   const confirmVerify = async () => {
     if (!verifyAmount.trim()) return;
-
     try {
+      setIsSubmitting(true);
       await verifyPayment(selectedBooking._id, {
         method: verifyMethod,
         amount: verifyAmount,
@@ -126,18 +136,62 @@ export default function Bookings() {
       loadBookings();
     } catch (err) {
       notifyError(err.message || "Failed to verify payment");
+    } finally {
+      setIsSubmitting(false);
     }
-  };
-
-  /* ---------------- DETAILS ---------------- */
-  const openDetails = (b) => {
-    setSelectedBooking(b);
-    setShowDetails(true);
   };
 
   const closeDetails = () => {
     setShowDetails(false);
     setSelectedBooking(null);
+  };
+
+  /* ---------------- DELETE ---------------- */
+  const openDeleteModal = (b = null) => {
+    if (b) {
+      setSelectedBooking(b);
+      setIsBulkDelete(false);
+    } else {
+      setIsBulkDelete(true);
+    }
+    setDeletePassword("");
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletePassword) return;
+    try {
+      setIsSubmitting(true);
+      if (isBulkDelete) {
+        await deleteBookings(selectedIds, deletePassword);
+        notifySuccess(`${selectedIds.length} bookings deleted successfully`);
+        setSelectedIds([]);
+      } else {
+        await deleteBooking(selectedBooking._id, deletePassword);
+        notifySuccess("Booking deleted successfully");
+      }
+      setShowDeleteModal(false);
+      setDeletePassword("");
+      loadBookings();
+    } catch (err) {
+      notifyError(err.message || "Failed to delete booking");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const toggleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(filtered.map((b) => b._id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
   };
 
   /* ---------------- LOADER ---------------- */
@@ -169,13 +223,23 @@ export default function Bookings() {
           </p>
         </div>
 
-        <div className="px-6 py-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-5 gap-4">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search user, member, or product"
             className="w-full max-w-md border border-[#cfd8cb] bg-[#fbfdfb] px-4 py-2.5 text-sm outline-none transition focus:border-[#2f6942] focus:ring-2 focus:ring-[#d7e6d8]"
           />
+          
+          {selectedIds.length > 0 && (
+            <button
+              onClick={() => openDeleteModal()}
+              className="flex items-center gap-2 border border-[#8f2f2f] bg-[#a33636] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#8f2f2f] transition"
+            >
+              <Trash2 size={16} />
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
         </div>
       </div>
 
@@ -183,6 +247,16 @@ export default function Bookings() {
         <table className="w-full text-sm">
           <thead className="bg-[#f6faf4] uppercase text-[#385241]">
             <tr>
+              <th className="p-3 text-left">
+                <input
+                  type="checkbox"
+                  onChange={toggleSelectAll}
+                  checked={
+                    filtered.length > 0 && selectedIds.length === filtered.length
+                  }
+                  className="rounded border-[#cfd8cb] text-[#2f6942] focus:ring-[#2f6942]"
+                />
+              </th>
               <th className="p-3 text-left">User</th>
               <th className="p-3">Member</th>
               <th className="p-3">Product</th>
@@ -201,6 +275,14 @@ export default function Bookings() {
 
               return (
                 <tr key={b._id} className="border-t border-[#edf2ea] hover:bg-[#fafcf9]">
+                  <td className="p-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(b._id)}
+                      onChange={() => toggleSelect(b._id)}
+                      className="rounded border-[#cfd8cb] text-[#2f6942] focus:ring-[#2f6942]"
+                    />
+                  </td>
                   <td className="p-3">
                     <div className="font-medium">{b.userName}</div>
                     <div className="text-xs text-gray-500">{b.userPhone}</div>
@@ -238,31 +320,41 @@ export default function Bookings() {
                     </span>
                   </td>
 
-                  <td className="p-3 space-x-3">
-                    <button
-                      onClick={() => openDetails(b)}
-                      className="text-[#2f6942] hover:underline"
-                    >
-                      Details
-                    </button>
-
-                    {!["cancelled", "canceled"].includes(status) && (
+                  <td className="p-3">
+                    <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => openCancelModal(b)}
-                        className="text-[#a33636] hover:underline"
+                        onClick={() => openDetails(b)}
+                        className="text-[#2f6942] hover:underline"
                       >
-                        Cancel
+                        Details
                       </button>
-                    )}
 
-                    {status === "pending" && (
+                      {!["cancelled", "canceled"].includes(status) && (
+                        <button
+                          onClick={() => openCancelModal(b)}
+                          className="text-[#a33636] hover:underline"
+                        >
+                          Cancel
+                        </button>
+                      )}
+
+                      {status === "pending" && (
+                        <button
+                          onClick={() => openVerifyModal(b)}
+                          className="text-[#1f5f3b] hover:underline"
+                        >
+                          Verify
+                        </button>
+                      )}
+
                       <button
-                        onClick={() => openVerifyModal(b)}
-                        className="text-[#1f5f3b] hover:underline"
+                        onClick={() => openDeleteModal(b)}
+                        className="text-[#a33636] hover:text-[#8f2f2f] transition-colors"
+                        title="Delete Permanently"
                       >
-                        Verify
+                        <Trash2 size={16} />
                       </button>
-                    )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -302,12 +394,13 @@ export default function Bookings() {
               >
                 Close
               </button>
-              <button
+              <Button
                 onClick={confirmCancel}
+                loading={isSubmitting}
                 className="border border-[#8f2f2f] bg-[#a33636] px-4 py-2 text-white"
               >
                 Cancel Booking
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -353,12 +446,13 @@ export default function Bookings() {
               >
                 Close
               </button>
-              <button
+              <Button
                 onClick={confirmVerify}
+                loading={isSubmitting}
                 className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Verify Payment
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -431,6 +525,55 @@ export default function Bookings() {
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[400px] border border-[#d8e3d4] bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-[#173b23]">Confirm Deletion</h2>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] p-2 text-slate-600 hover:bg-[#e8eee6]"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            <p className="text-sm text-slate-600 mb-4">
+              {isBulkDelete 
+                ? `Are you sure you want to permanently delete ${selectedIds.length} bookings? This action cannot be undone.`
+                : "Are you sure you want to permanently delete this booking? This action cannot be undone."
+              }
+            </p>
+
+            <label className="block text-sm font-medium mb-1">Admin Password</label>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Enter admin password"
+              className="mb-4 w-full border border-[#cfd8cb] bg-[#fbfdfb] p-2.5 outline-none focus:border-[#a33636] focus:ring-2 focus:ring-[#f3d4d4]"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="border border-[#cfd8cb] bg-[#f3f5f2] px-4 py-2 text-slate-700"
+              >
+                Cancel
+              </button>
+              <Button
+                onClick={confirmDelete}
+                loading={isSubmitting}
+                className="border border-[#8f2f2f] bg-[#a33636] px-4 py-2 text-white"
+              >
+                Delete Permanently
+              </Button>
+            </div>
           </div>
         </div>
       )}

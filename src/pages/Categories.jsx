@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
+import Button from "../components/Button.jsx";
 
 export default function Categories() {
   const {
@@ -14,6 +15,7 @@ export default function Categories() {
 
   const [listCategories, setListCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,6 +62,7 @@ export default function Categories() {
     }
 
     try {
+      setIsSubmitting(true);
       await createCategory(newCategory);
       notifySuccess("Category added successfully");
 
@@ -69,6 +72,8 @@ export default function Categories() {
     } catch (err) {
       setError(err.message || "Failed to create category");
       notifyError(err.message || "Failed to create category");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -86,6 +91,7 @@ export default function Categories() {
     }
 
     try {
+      setIsSubmitting(true);
       await updateCategory(editCategory._id, { name: editCategory.name });
       notifySuccess("Category updated successfully");
       setShowEditModal(false);
@@ -93,6 +99,8 @@ export default function Categories() {
     } catch (err) {
       setError(err.message || "Failed to update category");
       notifyError(err.message || "Failed to update category");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -227,12 +235,13 @@ export default function Categories() {
               >
                 Close
               </button>
-              <button
+              <Button
                 onClick={handleCreate}
+                loading={isSubmitting}
                 className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Add Category
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -274,12 +283,13 @@ export default function Categories() {
               >
                 Cancel
               </button>
-              <button
+              <Button
                 onClick={handleUpdate}
+                loading={isSubmitting}
                 className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Update
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
+import Button from "../components/Button.jsx";
 
 export default function Members() {
   const { fetchMembers, createMember, updateMember, deleteMember, notifySuccess, notifyError } =
@@ -9,6 +10,7 @@ export default function Members() {
 
   const [members, setMembers] = useState(null);
   const [filtered, setFiltered] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [search, setSearch] = useState("");
 
   const [showModal, setShowModal] = useState(false);
@@ -88,6 +90,7 @@ export default function Members() {
 
   const handleSave = async () => {
     try {
+      setIsSubmitting(true);
       if (editingMember) {
         await updateMember(editingMember, form);
         notifySuccess("Member updated successfully");
@@ -99,6 +102,8 @@ export default function Members() {
       load();
     } catch (err) {
       notifyError(err.message || "Failed to save member");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -299,12 +304,13 @@ export default function Members() {
                   Cancel
                 </button>
 
-                <button
+                <Button
                   onClick={handleSave}
+                  loading={isSubmitting}
                   className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
                 >
                   Save
-                </button>
+                </Button>
               </div>
             </div>
           </div>

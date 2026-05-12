@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { BadgeCheck, Building2, CheckCircle2, Eye, EyeOff, LockKeyhole, Mail, MapPin, ShieldCheck } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/Button.jsx";
 
 export default function Login() {
   const { login } = useContext(AppContext);
@@ -169,13 +170,13 @@ export default function Login() {
                   </div>
                 </div>
 
-                <button
+                <Button
                   type="submit"
-                  disabled={submitting}
-                  className="w-full border border-[#184d30] bg-[#1f5f3b] px-4 py-3 font-semibold text-white transition hover:bg-[#184d30] disabled:cursor-not-allowed disabled:opacity-70"
+                  loading={submitting}
+                  className="w-full border border-[#184d30] bg-[#1f5f3b] px-4 py-3 font-semibold text-white transition hover:bg-[#184d30]"
                 >
-                  {submitting ? "Signing In..." : "Login"}
-                </button>
+                  Login
+                </Button>
               </form>
 
               <div className="mt-8 border-t border-[#e1e7de] pt-4 text-xs leading-5 text-slate-500">

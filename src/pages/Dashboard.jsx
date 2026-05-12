@@ -27,6 +27,7 @@ import {
 import Loader from "../components/Loader.jsx";
 import StatCard from "../components/StatCard.jsx";
 import { AppContext } from "../context/AppContextInstance.js";
+import Button from "../components/Button.jsx";
 
 function todayInputValue() {
   return new Date().toISOString().slice(0, 10);
@@ -41,6 +42,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [analytics, setAnalytics] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState({
     from: "",
@@ -86,7 +88,12 @@ export default function Dashboard() {
           : "Pending";
 
   const onApplyFilters = async () => {
-    await loadAnalytics(filters);
+    try {
+      setIsSubmitting(true);
+      await loadAnalytics(filters);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const exportReport = async (status) => {
@@ -176,12 +183,13 @@ export default function Dashboard() {
               <option value="cancelled">Cancelled</option>
               <option value="pending">Pending</option>
             </select>
-            <button
+            <Button
               onClick={onApplyFilters}
+              loading={isSubmitting}
               className="border border-[#184d30] bg-[#1f5f3b] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#184d30]"
             >
               Apply Filters
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -243,21 +251,21 @@ export default function Dashboard() {
             <h2 className="text-lg font-semibold text-[#173b23]">Top Products by Sales</h2>
           </div>
           <div className="ml-auto flex flex-wrap gap-2">
-            <button
+            <Button
               onClick={() => exportReport("")}
-              disabled={exporting}
-              className="inline-flex items-center gap-2 border border-[#2f6942] px-3 py-2 text-sm font-semibold text-[#2f6942] transition hover:bg-[#f3f8f2] disabled:opacity-50"
+              loading={exporting}
+              className="inline-flex items-center gap-2 border border-[#2f6942] px-3 py-2 text-sm font-semibold text-[#2f6942] transition hover:bg-[#f3f8f2]"
             >
               <Download size={16} />
               Export Filtered CSV
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => exportReport("cancelled")}
-              disabled={exporting}
-              className="border border-[#8f3838] bg-[#a33636] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#912d2d] disabled:opacity-50"
+              loading={exporting}
+              className="border border-[#8f3838] bg-[#a33636] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#912d2d]"
             >
               Export Cancelled CSV
-            </button>
+            </Button>
           </div>
         </div>
         <div className="h-[320px]">

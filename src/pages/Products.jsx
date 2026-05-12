@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { X } from "lucide-react";
 import { AppContext } from "../context/AppContextInstance.js";
 import Loader from "../components/Loader.jsx";
+import Button from "../components/Button.jsx";
 
 function formatCurrency(value) {
   return `रु ${Number(value || 0).toLocaleString()}`;
@@ -23,6 +24,7 @@ export default function Products() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -142,6 +144,7 @@ export default function Products() {
       return;
     }
     try {
+      setIsSubmitting(true);
       const hasNewImages = Array.isArray(editValues.images) && editValues.images.length > 0;
       const payload = hasNewImages ? new FormData() : { ...editValues };
 
@@ -168,6 +171,8 @@ export default function Products() {
     } catch (err) {
       setError(err.message || "Failed to update product");
       notifyError(err.message || "Failed to update product");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -179,6 +184,7 @@ export default function Products() {
     }
 
     try {
+      setIsSubmitting(true);
       const formData = new FormData();
       formData.append("name", newProduct.name);
       formData.append("description", newProduct.description);
@@ -214,6 +220,8 @@ export default function Products() {
     } catch (err) {
       setError(err.message || "Failed to create product");
       notifyError(err.message || "Failed to create product");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -489,12 +497,13 @@ export default function Products() {
               >
                 Close
               </button>
-              <button
+              <Button
                 onClick={handleCreate}
+                loading={isSubmitting}
                 className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Add Product
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -665,12 +674,13 @@ export default function Products() {
               >
                 Cancel
               </button>
-              <button
+              <Button
                 onClick={() => handleUpdate(editingId)}
+                loading={isSubmitting}
                 className="border border-[#184d30] bg-[#1f5f3b] px-4 py-2 text-white"
               >
                 Save Changes
-              </button>
+              </Button>
             </div>
           </div>
         </div>

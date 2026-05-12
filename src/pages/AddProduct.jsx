@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import AdminLayout from "../layout/AdminLayout.jsx";
 import { AppContext } from "../context/AppContextInstance.js";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/Button.jsx";
 
 export default function AddProduct() {
   const { createProduct, notifySuccess, notifyError } = useContext(AppContext);
@@ -56,7 +57,7 @@ export default function AddProduct() {
         <textarea className="border p-2" placeholder="Description" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
         <input className="border p-2" placeholder="Features (comma separated)" value={form.features} onChange={e=>setForm({...form,features:e.target.value})} />
         <div>
-          <button disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded">{loading ? "Saving..." : "Save"}</button>
+          <Button loading={loading} type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Save</Button>
         </div>
       </form>
     </AdminLayout>
